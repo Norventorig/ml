@@ -32,13 +32,19 @@ plt.ylabel('amount')
 plt.show()
 
 
-x = pd.DataFrame(data={'age': df['age'], 'income': le.fit(df['income']), 'race': le.fit(df['race'])})
-y = pd.Series(data=le.fit(df['gender']))
+x = pd.DataFrame()
+le.fit(df['gender'])
+x['gender'] = le.transform(df['gender'])
+le.fit(df['race'])
+x['race'] = le.transform(df['race'])
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+le.fit(df['income'])
+y = pd.Series(data=le.transform(df['income']))
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=7)
 
 log_model = LogisticRegression()
 log_model.fit(x_train, y_train)
-predicted = log_model.predict(x_test)
 
-print(predicted.head())
+svc_model = SVC(kernel='linear')
+svc_model.fit(x_train, y_train)
