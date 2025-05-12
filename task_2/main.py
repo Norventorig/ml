@@ -14,34 +14,46 @@ class LogisticRecursion(ABC):
         point = numpy.zeros(len(x_param.columns))
 
         for _ in range(iters):
-            res = LogisticRecursion.gradient(x_param=x_param, y_param=y_param.to_numpy(), weights=point)
+            res = LogisticRecursion.gradient(x_param=x_param, y_param=y_param, weights=point)
             point = [point[i_weight] - learning_rate * i_gradient for i_weight, i_gradient in enumerate(res)]
 
         return {'koefs': {i: point[j] for j, i in enumerate(x_param.columns)},
-                'likelihood': LogisticRecursion.likelihood(x_param=x_param, y_param=y_param.to_numpy(), weights=point),
-                'log_loss': LogisticRecursion.log_loss(x_param=x_param, y_param=y_param.to_numpy(), weights=point)}
+                'likelihood': LogisticRecursion.likelihood(x_param=x_param, y_param=y_param, weights=point),
+                'log_loss': LogisticRecursion.log_loss(x_param=x_param, y_param=y_param, weights=point)}
 
     @staticmethod
-    def likelihood(x_param: pandas.DataFrame, y_param: numpy.array, weights: list):
-        scores = numpy.dot(x_param, weights)
+    def likelihood(x_param: pandas.DataFrame, y_param: pandas.Series, weights: list):
+        x_np = x_param.to_numpy()
+        y_np = y_param.to_numpy()
+        weights = numpy.array(weights)
+
+        scores = numpy.dot(x_np, weights)
         probabilities = 1 / (1 + numpy.exp(-scores))
-        res = sum(y_param * numpy.log(probabilities) + (1 - y_param) * numpy.log(1 - probabilities))
+        res = numpy.sum(y_np * numpy.log(probabilities) + (1 - y_np) * numpy.log(1 - probabilities))
 
         return res / len(x_param.index)
 
     @staticmethod
-    def log_loss(x_param: pandas.DataFrame, y_param: numpy.array, weights: list):
-        scores = numpy.dot(x_param, weights)
+    def log_loss(x_param: pandas.DataFrame, y_param: pandas.Series, weights: list):
+        x_np = x_param.to_numpy()
+        y_np = y_param.to_numpy()
+        weights = numpy.array(weights)
+
+        scores = numpy.dot(x_np, weights)
         probabilities = 1 / (1 + numpy.exp(-scores))
-        res = sum(-1 * (y_param * numpy.log(probabilities) + (1 - y_param) * numpy.log(1 - probabilities)))
+        res = numpy.sum(-1 * (y_np * numpy.log(probabilities) + (1 - y_np) * numpy.log(1 - probabilities)))
 
         return res / len(x_param.index)
 
     @staticmethod
-    def gradient(x_param: pandas.DataFrame, y_param: numpy.array, weights):
-        scores = numpy.dot(x_param, weights)
+    def gradient(x_param: pandas.DataFrame, y_param: pandas.Series, weights: list):
+        x_np = x_param.to_numpy()
+        y_np = y_param.to_numpy()
+        weights = numpy.array(weights)
+
+        scores = numpy.dot(x_np, weights)
         probabilities = 1 / (1 + numpy.exp(-scores))
-        res = numpy.dot((probabilities - y_param), x_param)
+        res = numpy.dot((probabilities - y_np), x_np)
 
         return pd.Series(res / len(x_param.index), index=x_param.columns)
 
