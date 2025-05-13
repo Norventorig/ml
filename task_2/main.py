@@ -9,18 +9,25 @@ from abc import ABC
 
 class LogisticRecursion(ABC):
     @staticmethod
-    def test(x_param: pandas.DataFrame, weights: list):
-        x_param = LogisticRecursion.normalization(x_param=x_param)
-        x_param = x_param.to_numpy()
+    def accuracy(predicted_classes: list, true_classes: list):
+        matches = [predicted_classes[index] == true_classes[index] for index in range(len(predicted_classes))]
+        return sum(matches) / len(matches)
 
+    @staticmethod
+    def test(x_param: pandas.DataFrame, weights: list):
+        x_param = x_param.to_numpy()
         weights = numpy.array(weights)
 
-        return numpy.dot(x_param, weights)
+        scores = numpy.dot(x_param, weights)
+        probabilities = 1 / (1 + numpy.exp(-scores))
+
+        predicted_classes = list(map(lambda i_class: int(i_class),
+                                     list(map(lambda i_proba: i_proba >= 0.5, probabilities))))
+
+        return predicted_classes
 
     @staticmethod
     def fit(x_param: pandas.DataFrame, y_param: pandas.Series, learning_rate: float = 0.1, iters: int = 1000):
-        x_param = LogisticRecursion.normalization(x_param=x_param)
-        x_param['intercept'] = 1
         point = numpy.zeros(len(x_param.columns))
 
         for _ in range(iters):
@@ -88,4 +95,14 @@ dataset = dataset.loc[dataset['target'] != 0]
 x = dataset.iloc[:, :4]
 y = dataset['target'].replace({1: 0, 2: 1})
 
-point = LogisticRecursion.fit(x, y, iters=5000)
+x = LogisticRecursion.normalization(x_param=x)
+x['intercept'] = 1
+x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
+
+odds = LogisticRecursion.fit(x_param=x_train, y_param=y_train, iters=5000)
+predictions = LogisticRecursion.test(x_param=x_test, weights=odds)
+
+for i in list(zip(y_test, predictions)):
+    print(f'Истина: {i[0]}, Предсказанное: {i[1]}')
+
+print(f'Accuracy: {LogisticRecursion.accuracy(predicted_classes=predictions, true_classes=y_test.to_list())}')
