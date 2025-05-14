@@ -93,10 +93,11 @@ dataset = sklearn.datasets.load_iris(as_frame=True).frame
 dataset = dataset.loc[dataset['target'] != 0]
 
 x = dataset.iloc[:, :4]
-y = dataset['target'].replace({1: 0, 2: 1})
-
 x = LogisticRecursion.normalization(x_param=x)
 x['intercept'] = 1
+
+y = dataset['target'].replace({1: 0, 2: 1})
+
 x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.2)
 
 odds = LogisticRecursion.fit(x_param=x_train, y_param=y_train, iters=5000)
