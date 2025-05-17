@@ -1,4 +1,6 @@
 import pandas as pd
+from matplotlib import pyplot as plt
+from sklearn.metrics import roc_curve, auc, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -22,3 +24,17 @@ x_test = scaler.transform(x_test)
 
 model = LogisticRegression()
 model.fit(x_train, y_train)
+
+scores = [i_score[1] for i_score in model.predict_proba(x_test)]
+
+fpr, tpr, thresholds = roc_curve(y_test, scores)
+
+plt.figure()
+plt.plot(fpr, tpr)
+plt.xlabel('FPR')
+plt.ylabel('TPR')
+plt.title('ROC Curve')
+plt.show()
+
+# roc_auc = auc(fpr, tpr)
+roc_auc = roc_auc_score(y_test, scores)
