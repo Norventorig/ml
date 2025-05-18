@@ -60,6 +60,7 @@ model.fit(x_train, y_train)
 scores = [i_score[1] for i_score in model.predict_proba(x_test)]
 
 fpr, tpr, thresholds = roc_curve(y_test, scores)
+roc_auc = roc_auc_score(y_test, scores)
 
 plt.figure()
 plt.plot(fpr, tpr)
@@ -67,8 +68,6 @@ plt.xlabel('FPR')
 plt.ylabel('TPR')
 plt.title('ROC Curve')
 plt.show()
-
-roc_auc = roc_auc_score(y_test, scores)
 
 my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_test, scores)
 
@@ -79,4 +78,12 @@ plt.ylabel('TPR')
 plt.title('ROC Curve (my function)')
 plt.show()
 
-# В моей функции почему-то больше порогов чем во встроенной, поэтому сравнение будет неверным
+plt.figure()
+plt.plot(fpr, tpr, label='Sklearn ROC (AUC = %0.2f)' % roc_auc)
+plt.plot(my_fpr, my_tpr, label='Self-made ROC', linestyle='--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Comparison of ROC Curves')
+plt.legend(loc='lower right')
+plt.grid(True)
+plt.show()
