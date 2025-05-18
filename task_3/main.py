@@ -15,25 +15,27 @@ def roc_curve_selfmade(y_true: pd.Series, y_score):
     y_true = y_true.to_numpy()
     predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
 
-    fpr_list = [(fp := len([True for index in range(len(y_true))
-                               if i_predicted[index] == 1 != y_true[index]]))
+    fpr_list = [fp / (fp + tn)
 
-                   / (fp +
+                if ((fp := len([True for index in range(len(y_true))
+                                if i_predicted[index] == 1 != y_true[index]]))
+                    +
+                    (tn := len([True for index in range(len(y_true))
+                                if i_predicted[index] == 0 == y_true[index]]))) != 0
+                else 0
 
-                   (tn := len([True for index in range(len(y_true))
-                               if i_predicted[index] == 0 == y_true[index]])))
+                for i_predicted in predicted.values()]
 
-                   for i_predicted in predicted.values()]
+    tpr_list = [tp / (tp + fn)
 
-    tpr_list = [(tp := len([True for index in range(len(y_true))
-                               if i_predicted[index] == 1 == y_true[index]]))
+                if ((tp := len([True for index in range(len(y_true))
+                                if i_predicted[index] == 1 == y_true[index]]))
+                    +
+                    (fn := len([True for index in range(len(y_true))
+                                if i_predicted[index] == 0 != y_true[index]]))) != 0
+                else 0
 
-                   / (tp +
-
-                   (fn := len([True for index in range(len(y_true))
-                               if i_predicted[index] == 0 != y_true[index]])))
-
-                   for i_predicted in predicted.values()]
+                for i_predicted in predicted.values()]
 
     return fpr_list, tpr_list, thresholds_list
 
