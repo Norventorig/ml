@@ -1,6 +1,7 @@
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from sklearn.metrics import roc_curve, auc, roc_auc_score
+from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -8,7 +9,7 @@ from sklearn.linear_model import LogisticRegression
 
 def roc_curve_selfmade(y_true: pd.Series, y_score):
     y_true = y_true.to_numpy()
-    thresholds_list = sorted(set(y_score), reverse=True)
+    thresholds_list = np.sort(np.unique(np.asarray(y_score)))[::-1]
     predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
 
     fpr_list = [(fp := len([True for index in range(len(y_true))
@@ -64,5 +65,15 @@ plt.ylabel('TPR')
 plt.title('ROC Curve')
 plt.show()
 
-# roc_auc = auc(fpr, tpr)
 roc_auc = roc_auc_score(y_test, scores)
+
+my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_test, scores)
+
+plt.figure()
+plt.plot(fpr, tpr)
+plt.xlabel('FPR')
+plt.ylabel('TPR')
+plt.title('ROC Curve (my function)')
+plt.show()
+
+# В моей функции почему-то больше порогов чем во встроенной, поэтому сравнение будет неверным
