@@ -52,7 +52,7 @@ def calculate_precision_recall(y_true: pd.Series, y_score):
                  / (tp +
 
                  (fn := len([True for index in range(len(y_true))
-                             if i_predicted[index] == 1 != y_true[index]])))
+                             if i_predicted[index] == 0 != y_true[index]])))
 
                  for i_predicted in predicted.values()]
 
