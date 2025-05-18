@@ -8,8 +8,11 @@ from sklearn.linear_model import LogisticRegression
 
 
 def roc_curve_selfmade(y_true: pd.Series, y_score):
-    y_true = y_true.to_numpy()
     thresholds_list = np.sort(np.unique(np.asarray(y_score)))[::-1]
+    thresholds_list = np.insert(thresholds_list, 0, thresholds_list[0] + 1)
+    thresholds_list = np.insert(thresholds_list, len(thresholds_list), thresholds_list[-1] - 1)
+
+    y_true = y_true.to_numpy()
     predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
 
     fpr_list = [(fp := len([True for index in range(len(y_true))
