@@ -38,6 +38,37 @@ def roc_curve_selfmade(y_true: pd.Series, y_score):
     return fpr_list, tpr_list, thresholds_list
 
 
+def calculate_precision_recall(y_true: pd.Series, y_score):
+    thresholds_list = np.sort(np.unique(np.asarray(y_score)))[::-1]
+    thresholds_list = np.insert(thresholds_list, 0, thresholds_list[0] + 1)
+    thresholds_list = np.insert(thresholds_list, len(thresholds_list), thresholds_list[-1] - 1)
+
+    y_true = y_true.to_numpy()
+    predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
+
+    precision = [(tp := len([True for index in range(len(y_true))
+                             if i_predicted[index] == 1 == y_true[index]]))
+
+                 / (tp +
+
+                 (fn := len([True for index in range(len(y_true))
+                             if i_predicted[index] == 1 != y_true[index]])))
+
+                 for i_predicted in predicted.values()]
+
+    recall = [(tp := len([True for index in range(len(y_true))
+                          if i_predicted[index] == 1 == y_true[index]]))
+
+              / (tp +
+
+              (fn := len([True for index in range(len(y_true))
+                          if i_predicted[index] == 0 != y_true[index]])))
+
+              for i_predicted in predicted.values()]
+
+    return precision, recall
+
+
 scaler = StandardScaler()
 dataset = pd.read_csv('dataset.csv')
 
@@ -59,11 +90,14 @@ model.fit(x_train, y_train)
 
 scores = [i_score[1] for i_score in model.predict_proba(x_test)]
 
-fpr, tpr, thresholds = roc_curve(y_test, scores)
-roc_auc = roc_auc_score(y_test, scores)
+fpr, tpr, thresholds = roc_curve(y_true=y_test, y_score=scores)
+roc_auc = roc_auc_score(y_true=y_test, y_score=scores)
 
-my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_test, scores)
-my_roc_auc = auc(my_fpr, my_tpr)
+my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_true=y_test, y_score=scores)
+my_roc_auc = auc(x=my_fpr, y=my_tpr)
+
+my_precision, my_recall = calculate_precision_recall(y_true=y_test, y_score=scores)
+pr_auc = auc(x=my_recall, y=my_precision)
 
 plt.figure()
 plt.plot(fpr, tpr, label='Sklearn ROC (AUC = %0.2f)' % roc_auc)
@@ -89,6 +123,15 @@ plt.plot(my_fpr, my_tpr, label='MY ROC (AUC = %0.2f)' % my_roc_auc, linestyle='-
 plt.xlabel('FPR')
 plt.ylabel('TPR')
 plt.title('Comparison of ROC Curves')
+plt.legend(loc='lower right')
+plt.grid(True)
+plt.show()
+
+plt.figure()
+plt.plot(my_recall, my_precision, label='Precision - Recall Curve (AUC = %0.2f)' % pr_auc)
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision - Recall Curve')
 plt.legend(loc='lower right')
 plt.grid(True)
 plt.show()
