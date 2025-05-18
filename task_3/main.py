@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from sklearn.metrics import roc_curve, roc_auc_score
+from sklearn.metrics import roc_curve, roc_auc_score, auc
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -62,27 +62,32 @@ scores = [i_score[1] for i_score in model.predict_proba(x_test)]
 fpr, tpr, thresholds = roc_curve(y_test, scores)
 roc_auc = roc_auc_score(y_test, scores)
 
+my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_test, scores)
+my_roc_auc = auc(my_fpr, my_tpr)
+
 plt.figure()
-plt.plot(fpr, tpr)
+plt.plot(fpr, tpr, label='Sklearn ROC (AUC = %0.2f)' % roc_auc)
 plt.xlabel('FPR')
 plt.ylabel('TPR')
 plt.title('ROC Curve')
+plt.legend(loc='lower right')
+plt.grid(True)
 plt.show()
 
-my_fpr, my_tpr, my_thresholds = roc_curve_selfmade(y_test, scores)
-
 plt.figure()
-plt.plot(fpr, tpr)
+plt.plot(fpr, tpr, label='MY ROC (AUC = %0.2f)' % my_roc_auc)
 plt.xlabel('FPR')
 plt.ylabel('TPR')
 plt.title('ROC Curve (my function)')
+plt.legend(loc='lower right')
+plt.grid(True)
 plt.show()
 
 plt.figure()
 plt.plot(fpr, tpr, label='Sklearn ROC (AUC = %0.2f)' % roc_auc)
-plt.plot(my_fpr, my_tpr, label='Self-made ROC', linestyle='--')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
+plt.plot(my_fpr, my_tpr, label='MY ROC (AUC = %0.2f)' % my_roc_auc, linestyle='--')
+plt.xlabel('FPR')
+plt.ylabel('TPR')
 plt.title('Comparison of ROC Curves')
 plt.legend(loc='lower right')
 plt.grid(True)
