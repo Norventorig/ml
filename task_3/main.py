@@ -48,23 +48,25 @@ def calculate_precision_recall(y_true: pd.Series, y_score):
     y_true = y_true.to_numpy()
     predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
 
-    precision = [(tp := len([True for index in range(len(y_true))
-                             if i_predicted[index] == 1 == y_true[index]]))
+    precision = [tp / (tp + fp)
 
-                 / (tp +
-
-                 (fn := len([True for index in range(len(y_true))
-                             if i_predicted[index] == 0 != y_true[index]])))
+                 if ((tp := len([True for index in range(len(y_true))
+                                 if i_predicted[index] == 1 == y_true[index]]))
+                     +
+                     (fp := len([True for index in range(len(y_true))
+                                 if i_predicted[index] == 1 != y_true[index]]))) != 0
+                 else 0
 
                  for i_predicted in predicted.values()]
 
-    recall = [(tp := len([True for index in range(len(y_true))
-                          if i_predicted[index] == 1 == y_true[index]]))
+    recall = [tp / (tp + fn)
 
-              / (tp +
-
-              (fn := len([True for index in range(len(y_true))
-                          if i_predicted[index] == 0 != y_true[index]])))
+              if ((tp := len([True for index in range(len(y_true))
+                              if i_predicted[index] == 1 == y_true[index]]))
+                  +
+                  (fn := len([True for index in range(len(y_true))
+                              if i_predicted[index] == 0 != y_true[index]]))) != 0
+              else 0
 
               for i_predicted in predicted.values()]
 
