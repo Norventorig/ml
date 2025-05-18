@@ -6,6 +6,34 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 
 
+def roc_curve_selfmade(y_true: pd.Series, y_score):
+    y_true = y_true.to_numpy()
+    thresholds_list = sorted(set(y_score), reverse=True)
+    predicted = {i_threshold: [int(i_score > i_threshold) for i_score in y_score] for i_threshold in thresholds_list}
+
+    fpr_list = [(fp := len([True for index in range(len(y_true))
+                               if i_predicted[index] == 1 != y_true[index]]))
+
+                   / (fp +
+
+                   (tn := len([True for index in range(len(y_true))
+                               if i_predicted[index] == 0 == y_true[index]])))
+
+                   for i_predicted in predicted.values()]
+
+    tpr_list = [(tp := len([True for index in range(len(y_true))
+                               if i_predicted[index] == 1 == y_true[index]]))
+
+                   / (tp +
+
+                   (fn := len([True for index in range(len(y_true))
+                               if i_predicted[index] == 0 != y_true[index]])))
+
+                   for i_predicted in predicted.values()]
+
+    return fpr_list, tpr_list, thresholds_list
+
+
 scaler = StandardScaler()
 dataset = pd.read_csv('dataset.csv')
 
