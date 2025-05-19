@@ -7,7 +7,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 
 
-def roc_curve_selfmade(y_true: pd.Series, y_score):
+def roc_curve_selfmade(y_true: pd.Series, y_score: list):
+    """
+    Принимает Серию истинных классов и Список высчитанных моделью вероятностей быть классом 1.
+    Создает пороги и рассчитывает TPR и FPR при каждом пороге.
+    Возвращает FPR: list, TPR: list thresholds: ndarray.
+    """
     thresholds_list = np.sort(np.unique(np.asarray(y_score)))[::-1]
     thresholds_list = np.insert(thresholds_list, 0, thresholds_list[0] + 1)
     thresholds_list = np.insert(thresholds_list, len(thresholds_list), thresholds_list[-1] - 1)
@@ -40,7 +45,12 @@ def roc_curve_selfmade(y_true: pd.Series, y_score):
     return fpr_list, tpr_list, thresholds_list
 
 
-def calculate_precision_recall(y_true: pd.Series, y_score):
+def calculate_precision_recall(y_true: pd.Series, y_score: list):
+    """
+    Принимает Серию истинных классов и Список высчитанных моделью вероятностей быть классом 1.
+    Создает пороги и рассчитывает Precision и Recall при каждом пороге.
+    Возвращает Precision: list, Recall: list.
+    """
     thresholds_list = np.sort(np.unique(np.asarray(y_score)))[::-1]
     thresholds_list = np.insert(thresholds_list, 0, thresholds_list[0] + 1)
     thresholds_list = np.insert(thresholds_list, len(thresholds_list), thresholds_list[-1] - 1)
@@ -78,7 +88,6 @@ dataset = pd.read_csv('dataset.csv')
 
 dataset = dataset[['height', 'weight', 'sex']]
 dataset = dataset.dropna()
-
 dataset['sex'] = (dataset['sex'] == 'male').astype(int)
 
 x = dataset[['height', 'weight']]
@@ -90,6 +99,7 @@ x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
 model = LogisticRegression()
+
 model.fit(x_train, y_train)
 
 scores = [i_score[1] for i_score in model.predict_proba(x_test)]
