@@ -40,9 +40,6 @@ model.fit(x_unprepared_train, train_y)
 
 predictions = model.predict(x_unprepared_test)
 
-# Я решил бахнуть ВСЕ известные мне метрики, кроме log loss,
-# Так как он учитывает уверенность модели, а уверенностью там и не пахнет
-
 accuracy = accuracy_score(test_y['Survived'], predictions)
 precision = precision_score(test_y['Survived'], predictions)
 recall = recall_score(test_y['Survived'], predictions)
