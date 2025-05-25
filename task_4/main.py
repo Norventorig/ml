@@ -28,6 +28,13 @@ test_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis
 x_unprepared_test = test_dataset
 test_y = test_y.merge(test_dataset['PassengerId'], how='inner', on='PassengerId')
 
+# 'Embarked' - Порт высадки. Удалено, потому что является категориальным значением
+# 'Pclass' - Класс билета. Удалено, потому что является категориальным значением
+# 'Sex' - Пол. Удалено, потому что является категориальным значением
+# 'Name' - Имя. Удалено, потому что строка
+# 'Ticket' - Билет. Удалено, потому что смесь строки и числа, где строка это код класса, который мы удалили
+# 'Cabin' - Каюта. Удалено, потому что смесь строки и числа
+
 model = LogisticRegression()
 model.fit(x_unprepared_train, train_y)
 
