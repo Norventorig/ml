@@ -4,12 +4,7 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
-
-
-pd.set_option('display.max_rows', None)  # Все строки
-pd.set_option('display.max_columns', None)  # Все столбцы
-pd.set_option('display.width', None)  # Автоперенос отключен
-pd.set_option('display.max_colwidth', None)  # Полное содержимое ячеек
+from sklearn.preprocessing import OneHotEncoder
 
 
 train_dataset = pd.read_csv('train.csv')
@@ -54,7 +49,23 @@ print(f"f1: {f1}")
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
 
 
-x_prepared_train
-x_prepared_test
-y_train
-y_test
+x_prepared_train = train_dataset[['Sex', 'Age']]
+x_prepared_test = test_dataset[['Sex', 'Age']]
+
+x_prepared_train.dropna(inplace=True)
+x_prepared_test.dropna(inplace=True)
+
+encoder = OneHotEncoder(sparse_output=False)
+encoder.fit(x_prepared_train[["Sex"]])
+
+encoded_sex_train = pd.DataFrame(data=encoder.transform(x_prepared_train[["Sex"]]),
+                                 columns=['Female', 'Male'])
+encoded_sex_test = pd.DataFrame(data=encoder.transform(x_prepared_test[["Sex"]]),
+                                columns=['Female', 'Male'])
+
+x_prepared_train = pd.concat([x_prepared_train.drop("Sex", axis=1), encoded_sex_train], axis=1)
+x_prepared_test = pd.concat([x_prepared_test.drop("Sex", axis=1), encoded_sex_test], axis=1)
+
+
+# y_train
+# y_test
