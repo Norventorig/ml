@@ -14,19 +14,19 @@ pd.set_option('display.max_colwidth', None)  # Полное содержимое
 
 train_dataset = pd.read_csv('train.csv')
 test_dataset = pd.read_csv('test.csv')
-test_y = pd.read_csv('test_true.csv')
 
 train_dataset.dropna(inplace=True)
 train_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
 
 x_unprepared_train = train_dataset.drop('Survived', axis=1)
-train_y = train_dataset['Survived']
+y_train = train_dataset['Survived']
 
 test_dataset.dropna(inplace=True)
 test_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
 
 x_unprepared_test = test_dataset
-test_y = test_y.merge(test_dataset['PassengerId'], how='inner', on='PassengerId')
+y_test = pd.read_csv('test_true.csv')
+y_test = y_test.merge(test_dataset['PassengerId'], how='inner', on='PassengerId')
 
 # 'Embarked' - Порт высадки. Удалено, потому что является категориальным значением
 # 'Pclass' - Класс билета. Удалено, потому что является категориальным значением
@@ -36,14 +36,14 @@ test_y = test_y.merge(test_dataset['PassengerId'], how='inner', on='PassengerId'
 # 'Cabin' - Каюта. Удалено, потому что смесь строки и числа
 
 model = LogisticRegression()
-model.fit(x_unprepared_train, train_y)
+model.fit(x_unprepared_train, y_train)
 
 predictions = model.predict(x_unprepared_test)
 
-accuracy = accuracy_score(test_y['Survived'], predictions)
-precision = precision_score(test_y['Survived'], predictions)
-recall = recall_score(test_y['Survived'], predictions)
-f1 = f1_score(test_y['Survived'], predictions)
+accuracy = accuracy_score(y_test['Survived'], predictions)
+precision = precision_score(y_test['Survived'], predictions)
+recall = recall_score(y_test['Survived'], predictions)
+f1 = f1_score(y_test['Survived'], predictions)
 
 print('1 - выжил, 0 - погиб')
 print(f"accuracy: {accuracy}")
@@ -52,3 +52,9 @@ print(f"recall: {recall}")
 print(f"f1: {f1}")
 
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
+
+
+x_prepared_train
+x_prepared_test
+y_train
+y_test
