@@ -4,22 +4,21 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
-from sklearn.preprocessing import OneHotEncoder
 
 
 train_dataset = pd.read_csv('train.csv')
 test_dataset = pd.read_csv('test.csv')
 
-train_dataset.dropna(inplace=True)
-train_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
+x_unprepared_train = train_dataset.copy()
+x_unprepared_train.dropna(inplace=True)
+x_unprepared_train.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin', 'Survived'], axis=1, inplace=True)
 
-x_unprepared_train = train_dataset.drop('Survived', axis=1)
+x_unprepared_test = test_dataset.copy()
+x_unprepared_test.dropna(inplace=True)
+x_unprepared_test.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
+
 y_train = train_dataset['Survived']
 
-test_dataset.dropna(inplace=True)
-test_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
-
-x_unprepared_test = test_dataset
 y_test = pd.read_csv('test_true.csv')
 y_test = y_test.merge(test_dataset['PassengerId'], how='inner', on='PassengerId')
 
@@ -52,20 +51,15 @@ print(f"f1: {f1}")
 x_prepared_train = train_dataset[['Sex', 'Age']]
 x_prepared_test = test_dataset[['Sex', 'Age']]
 
-x_prepared_train.dropna(inplace=True)
-x_prepared_test.dropna(inplace=True)
+# Оставил пол так как в первую очередь спасали женщин.
+# Оставил возраст так как в первую очередь спасали детей.
 
-encoder = OneHotEncoder(sparse_output=False)
-encoder.fit(x_prepared_train[["Sex"]])
+los_percentage_train = len(x_prepared_train.dropna()) * 100 / len(x_prepared_train)
+los_percentage_test = len(x_prepared_test.dropna()) * 100 / len(x_prepared_test)
 
-encoded_sex_train = pd.DataFrame(data=encoder.transform(x_prepared_train[["Sex"]]),
-                                 columns=['Female', 'Male'])
-encoded_sex_test = pd.DataFrame(data=encoder.transform(x_prepared_test[["Sex"]]),
-                                columns=['Female', 'Male'])
+print(f'Процент данных, который будет потерян, если просто удалить пропуски:')
+print(f'Test - {los_percentage_test}')
+print(f'Train - {los_percentage_train}')
 
-x_prepared_train = pd.concat([x_prepared_train.drop("Sex", axis=1), encoded_sex_train], axis=1)
-x_prepared_test = pd.concat([x_prepared_test.drop("Sex", axis=1), encoded_sex_test], axis=1)
-
-
-# y_train
-# y_test
+x_prepared_train['Age'].fillna(x_prepared_train['Age'].dropna().sum() / x_prepared_train['Age'].dropna().count())
+x_prepared_test['Age'].fillna(x_prepared_test['Age'].dropna().sum() / x_prepared_test['Age'].dropna().count())
