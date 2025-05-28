@@ -1,4 +1,5 @@
 import pandas as pd
+import random
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
@@ -48,18 +49,33 @@ print(f"f1: {f1}")
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
 
 
-x_prepared_train = train_dataset[['Sex', 'Age']]
-x_prepared_test = test_dataset[['Sex', 'Age']]
+x_train = train_dataset[['Sex', 'Age']]
+x_test = test_dataset[['Sex', 'Age']]
 
 # Оставил пол так как в первую очередь спасали женщин.
 # Оставил возраст так как в первую очередь спасали детей.
 
-los_percentage_train = len(x_prepared_train.dropna()) * 100 / len(x_prepared_train)
-los_percentage_test = len(x_prepared_test.dropna()) * 100 / len(x_prepared_test)
+los_percentage_train = len(x_train.dropna()) * 100 / len(x_train)
+los_percentage_test = len(x_test.dropna()) * 100 / len(x_test)
 
 print(f'Процент данных, который будет потерян, если просто удалить пропуски:')
 print(f'Test - {los_percentage_test}')
 print(f'Train - {los_percentage_train}')
 
-x_prepared_train['Age'].fillna(x_prepared_train['Age'].dropna().sum() / x_prepared_train['Age'].dropna().count())
-x_prepared_test['Age'].fillna(x_prepared_test['Age'].dropna().sum() / x_prepared_test['Age'].dropna().count())
+x_train_sum = x_train['Age'].dropna().sum()
+x_test_sum = x_test['Age'].dropna().sum()
+
+x_train_count = x_train['Age'].dropna().count()
+x_test_count = x_test['Age'].dropna().count()
+
+x_train_avg_filled = x_train['Age'].fillna(x_train_sum / x_train_count)
+x_test_avg_filled = x_test['Age'].fillna(x_test_sum / x_test_count)
+
+x_train_max = x_train['Age'].max()
+x_test_max = x_test['Age'].max()
+
+x_train_min = x_train['Age'].min()
+x_test_min = x_test['Age'].min()
+
+x_train_rand_filled = x_train['Age'].fillna(random.randrange(x_train_min, x_train_max))
+x_test_rand_filled = x_test['Age'].fillna(random.randrange(x_test_min, x_test_max))
