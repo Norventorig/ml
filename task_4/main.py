@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
 
-def put_random(series: pd.Series, min_val: float, max_val: float):
+def put_random(series: pd.Series, min_val: float, max_val: float) -> pd.Series:
     min_val = round(min_val, 2)
     max_val = round(max_val, 2)
 
@@ -17,6 +17,24 @@ def put_random(series: pd.Series, min_val: float, max_val: float):
 
     series[nan_mask] = random_values
     return series
+
+
+def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame):
+    """
+    Убогая функция, которая была создана исключительно для сокращения длины кода.
+    Очищает тестовую и обучающую выборку от выбросов в признаке Age
+    :param train_df:
+    :param test_df:
+    :return train_df, test_df:
+    """
+    ages_q1 = np.quantile(sorted(train_df['Age'].to_list()), 0.25)
+    ages_q3 = np.quantile(sorted(train_df['Age'].to_list()), 0.75)
+    ages_iqr = ages_q3 - ages_q1
+
+    train_df = train_df[[train_df['Age'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
+    test_df = test_df[[test_df['Age'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
+
+    return train_df, test_df
 
 
 train_dataset = pd.read_csv('train.csv')
@@ -127,9 +145,9 @@ print(f"recall: {recall}")
 print(f"f1: {f1}")
 
 
-# ages_q1 = np.quantile(sorted(x_train['Age'].to_list()), 0.25)
-# ages_q3 = np.quantile(sorted(x_train['Age'].to_list()), 0.75)
-# ages_iqr = ages_q3 - ages_q1
-#
-# x_train_without_outlier = x_train[[x_train['Ages'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
-# # x_test_without_outlier =
+ages_q1 = np.quantile(sorted(x_train['Age'].to_list()), 0.25)
+ages_q3 = np.quantile(sorted(x_train['Age'].to_list()), 0.75)
+ages_iqr = ages_q3 - ages_q1
+
+x_train_without_outlier = x_train[[x_train['Ages'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
+x_test_without_outlier = x_test[[x_test['Ages'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
