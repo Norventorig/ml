@@ -74,6 +74,25 @@ x_train_rand_filled = put_random(series=x_train['Age'], min_val=x_train['Age'].m
 x_test_rand_filled = put_random(series=x_test['Age'], min_val=x_test['Age'].min(), max_val=x_test['Age'].max())
 
 
+unprepared_model = LogisticRegression()
+unprepared_model.fit(x_unprepared_train, y_train)
+
+predictions = unprepared_model.predict(x_unprepared_test)
+
+accuracy = accuracy_score(y_test['Survived'], predictions)
+precision = precision_score(y_test['Survived'], predictions)
+recall = recall_score(y_test['Survived'], predictions)
+f1 = f1_score(y_test['Survived'], predictions)
+
+print('1 - выжил, 0 - погиб')
+print(f"accuracy: {accuracy}")
+print(f"precision: {precision}")
+print(f"recall: {recall}")
+print(f"f1: {f1}")
+
+# recall 1 потому что модель ни разу не предсказала 0 - смерть
+
+
 avg_filled_model = LogisticRegression()
 avg_filled_model.fit(x_train_avg_filled, y_train)
 
@@ -106,25 +125,6 @@ print(f"accuracy: {accuracy}")
 print(f"precision: {precision}")
 print(f"recall: {recall}")
 print(f"f1: {f1}")
-
-
-unprepared_model = LogisticRegression()
-unprepared_model.fit(x_unprepared_train, y_train)
-
-predictions = unprepared_model.predict(x_unprepared_test)
-
-accuracy = accuracy_score(y_test['Survived'], predictions)
-precision = precision_score(y_test['Survived'], predictions)
-recall = recall_score(y_test['Survived'], predictions)
-f1 = f1_score(y_test['Survived'], predictions)
-
-print('1 - выжил, 0 - погиб')
-print(f"accuracy: {accuracy}")
-print(f"precision: {precision}")
-print(f"recall: {recall}")
-print(f"f1: {f1}")
-
-# recall 1 потому что модель ни разу не предсказала 0 - смерть
 
 
 # ages_q1 = np.quantile(sorted(x_train['Age'].to_list()), 0.25)
