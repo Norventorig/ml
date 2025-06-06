@@ -82,14 +82,24 @@ x_unprepared_test.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'],
 # 'Cabin' - Каюта. Удалено, потому что смесь строки и числа
 
 
-ages = x_train['Age'].to_list() + x_test['Age'].to_list()
+x_train_avg_filled = x_train.copy()
+x_test_avg_filled = x_test.copy()
 
-x_train_avg_filled = x_train['Age'].fillna(sum(ages) / len(ages))
-x_test_avg_filled = x_test['Age'].fillna(sum(ages) / len(ages))
+ages = x_train_avg_filled['Age'].to_list() + x_test_avg_filled['Age'].to_list()
+
+x_train_avg_filled['Age'] = x_train_avg_filled['Age'].fillna(sum(ages) / len(ages))
+x_test_avg_filled['Age'] = x_test_avg_filled['Age'].fillna(sum(ages) / len(ages))
 
 
-x_train_rand_filled = put_random(series=x_train['Age'], min_val=x_train['Age'].min(), max_val=x_train['Age'].max())
-x_test_rand_filled = put_random(series=x_test['Age'], min_val=x_test['Age'].min(), max_val=x_test['Age'].max())
+x_train_rand_filled = x_train.copy()
+x_test_rand_filled = x_test.copy()
+
+x_train_rand_filled['Age'] = put_random(series=x_train_rand_filled['Age'],
+                                        min_val=x_train_rand_filled['Age'].min(),
+                                        max_val=x_train_rand_filled['Age'].max())
+x_test_rand_filled['Age'] = put_random(series=x_test_rand_filled['Age'],
+                                       min_val=x_test_rand_filled['Age'].min(),
+                                       max_val=x_test_rand_filled['Age'].max())
 
 
 unprepared_model = LogisticRegression()
@@ -145,9 +155,21 @@ print(f"recall: {recall}")
 print(f"f1: {f1}")
 
 
-ages_q1 = np.quantile(sorted(x_train['Age'].to_list()), 0.25)
-ages_q3 = np.quantile(sorted(x_train['Age'].to_list()), 0.75)
-ages_iqr = ages_q3 - ages_q1
+x_train_rand_filled, x_test_rand_filled = remove_outliers(train_df=x_train_rand_filled,
+                                                          test_df=x_test_rand_filled)
 
-x_train_without_outlier = x_train[[x_train['Ages'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
-x_test_without_outlier = x_test[[x_test['Ages'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
+rand_filled_model = LogisticRegression()
+rand_filled_model.fit(x_train_rand_filled, y_train)
+
+predictions = rand_filled_model.predict(x_test_rand_filled)
+
+accuracy = accuracy_score(y_test['Survived'], predictions)
+precision = precision_score(y_test['Survived'], predictions)
+recall = recall_score(y_test['Survived'], predictions)
+f1 = f1_score(y_test['Survived'], predictions)
+
+print('1 - выжил, 0 - погиб')
+print(f"accuracy: {accuracy}")
+print(f"precision: {precision}")
+print(f"recall: {recall}")
+print(f"f1: {f1}")
