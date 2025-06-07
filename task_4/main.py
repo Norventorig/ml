@@ -37,23 +37,24 @@ def put_random(series: pd.Series, min_val: float, max_val: float) -> pd.Series:
     return series
 
 
-def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame):
+def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame, outlier_param: str):
     """
     Убогая функция, которая была создана исключительно для сокращения длины кода.
-    Очищает тестовую и обучающую выборку от выбросов в признаке Age
+    Очищает тестовую и обучающую выборку от выбросов по признаку
     :param train_df:
     :param test_df:
+    :param outlier_param:
     :return train_df, test_df:
     """
-    ages_q1 = np.quantile(sorted(train_df['Age'].to_list()), 0.25)
-    ages_q3 = np.quantile(sorted(train_df['Age'].to_list()), 0.75)
+    ages_q1 = np.quantile(sorted(train_df[outlier_param].to_list()), 0.25)
+    ages_q3 = np.quantile(sorted(train_df[outlier_param].to_list()), 0.75)
     ages_iqr = ages_q3 - ages_q1
 
     low_iqr = ages_q1 - (1.5 * ages_iqr)
     high_iqr = ages_q3 + (1.5 * ages_iqr)
 
-    train_df = train_df[(train_df['Age'] > low_iqr) & (train_df['Age'] < high_iqr)]
-    test_df = test_df[(test_df['Age'] > low_iqr) & (test_df['Age'] < high_iqr)]
+    train_df = train_df[(train_df[outlier_param] > low_iqr) & (train_df[outlier_param] < high_iqr)]
+    test_df = test_df[(test_df[outlier_param] > low_iqr) & (test_df[outlier_param] < high_iqr)]
 
     return train_df, test_df
 
@@ -142,3 +143,21 @@ model_operation(x=x_train_rand_filled,
                 test_x=x_test_rand_filled)
 
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
+
+# df2 = df2[df2.index.isin(df1.index)]
+
+
+model_operation(x=x_unprepared_train,
+                y=y_unprepared_train,
+                true_res=y_unprepared_test,
+                test_x=x_unprepared_test)
+
+model_operation(x=x_train_avg_filled,
+                y=train_dataset['Survived'],
+                true_res=y_test['Survived'],
+                test_x=x_test_avg_filled)
+
+model_operation(x=x_train_rand_filled,
+                y=train_dataset['Survived'],
+                true_res=y_test['Survived'],
+                test_x=x_test_rand_filled)
