@@ -144,20 +144,22 @@ model_operation(x=x_train_rand_filled,
 
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
 
-# df2 = df2[df2.index.isin(df1.index)]
+x_train_avg_filled_without_outliers, x_test_avg_filled_without_outliers = remove_outliers(
+    train_df=x_train_avg_filled,
+    test_df=x_test_avg_filled,
+    outlier_param='Age')
 
+x_train_rand_filled_without_outliers, x_test_rand_filled_without_outliers = remove_outliers(
+    train_df=x_train_rand_filled,
+    test_df=x_test_rand_filled,
+    outlier_param='Age')
 
-model_operation(x=x_unprepared_train,
-                y=y_unprepared_train,
-                true_res=y_unprepared_test,
-                test_x=x_unprepared_test)
+model_operation(x=x_train_avg_filled_without_outliers,
+                y=train_dataset[train_dataset.index.isin(x_train_avg_filled_without_outliers.index)]['Survived'],
+                true_res=y_test[y_test.index.isin(x_train_avg_filled_without_outliers.index)]['Survived'],
+                test_x=x_test_avg_filled_without_outliers)
 
-model_operation(x=x_train_avg_filled,
-                y=train_dataset['Survived'],
-                true_res=y_test['Survived'],
-                test_x=x_test_avg_filled)
-
-model_operation(x=x_train_rand_filled,
-                y=train_dataset['Survived'],
-                true_res=y_test['Survived'],
-                test_x=x_test_rand_filled)
+model_operation(x=x_train_rand_filled_without_outliers,
+                y=train_dataset[train_dataset.index.isin(x_train_rand_filled_without_outliers.index)]['Survived'],
+                true_res=y_test[y_test.index.isin(x_test_rand_filled_without_outliers.index)]['Survived'],
+                test_x=x_test_rand_filled_without_outliers)
