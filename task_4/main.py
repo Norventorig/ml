@@ -49,8 +49,11 @@ def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame):
     ages_q3 = np.quantile(sorted(train_df['Age'].to_list()), 0.75)
     ages_iqr = ages_q3 - ages_q1
 
-    train_df = train_df[[train_df['Age'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
-    test_df = test_df[[test_df['Age'] in range(ages_q1 - (1.5 * ages_iqr), ages_q3 + (1.5 * ages_iqr))]]
+    low_iqr = ages_q1 - (1.5 * ages_iqr)
+    high_iqr = ages_q3 + (1.5 * ages_iqr)
+
+    train_df = train_df[(train_df['Age'] > low_iqr) & (train_df['Age'] < high_iqr)]
+    test_df = test_df[(test_df['Age'] > low_iqr) & (test_df['Age'] < high_iqr)]
 
     return train_df, test_df
 
@@ -127,32 +130,15 @@ model_operation(x=x_unprepared_train,
                 y=y_unprepared_train,
                 true_res=y_unprepared_test,
                 test_x=x_unprepared_test)
-# recall 1 потому что модель ни разу не предсказала 0 - смерть
+
 model_operation(x=x_train_avg_filled,
                 y=train_dataset['Survived'],
                 true_res=y_test['Survived'],
                 test_x=x_test_avg_filled)
+
 model_operation(x=x_train_rand_filled,
                 y=train_dataset['Survived'],
                 true_res=y_test['Survived'],
                 test_x=x_test_rand_filled)
 
-
-# x_train_rand_filled, x_test_rand_filled = remove_outliers(train_df=x_train_rand_filled,
-#                                                           test_df=x_test_rand_filled)
-#
-# rand_filled_model = LogisticRegression()
-# rand_filled_model.fit(x_train_rand_filled, train_dataset['Survived'])
-#
-# predictions = rand_filled_model.predict(x_test_rand_filled)
-#
-# accuracy = accuracy_score(y_test['Survived'], predictions)
-# precision = precision_score(y_test['Survived'], predictions)
-# recall = recall_score(y_test['Survived'], predictions)
-# f1 = f1_score(y_test['Survived'], predictions)
-#
-# print('\n1 - выжил, 0 - погиб')
-# print(f"accuracy: {accuracy}")
-# print(f"precision: {precision}")
-# print(f"recall: {recall}")
-# print(f"f1: {f1}")
+# recall 1 потому что модель ни разу не предсказала 0 - смерть
