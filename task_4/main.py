@@ -8,6 +8,24 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
 
+def model_operation(x, y, true_res, test_x):
+    model = LogisticRegression()
+    model.fit(x, y)
+
+    predictions = model.predict(test_x)
+
+    accuracy = accuracy_score(true_res, predictions)
+    precision = precision_score(true_res, predictions)
+    recall = recall_score(true_res, predictions)
+    f1 = f1_score(true_res, predictions)
+
+    print('\n1 - выжил, 0 - погиб')
+    print(f"accuracy: {accuracy}")
+    print(f"precision: {precision}")
+    print(f"recall: {recall}")
+    print(f"f1: {f1}")
+
+
 def put_random(series: pd.Series, min_val: float, max_val: float) -> pd.Series:
     min_val = round(min_val, 2)
     max_val = round(max_val, 2)
@@ -40,6 +58,8 @@ def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame):
 train_dataset = pd.read_csv('train.csv')
 test_dataset = pd.read_csv('test.csv')
 
+y_test = pd.read_csv('test_true.csv')
+
 x_train = train_dataset[['Sex', 'Age']]
 x_test = test_dataset[['Sex', 'Age']]
 
@@ -51,11 +71,6 @@ x_train_recoded = pd.get_dummies(x_train['Sex'])
 
 x_train = pd.concat([x_train, x_train_recoded], axis=1).drop('Sex', axis=1)
 x_test = pd.concat([x_test, x_test_recoded], axis=1).drop('Sex', axis=1)
-
-y_train = train_dataset['Survived']
-
-y_test = pd.read_csv('test_true.csv')
-y_test = y_test.merge(test_dataset['PassengerId'], how='inner', on='PassengerId')
 
 
 los_percentage_train = len(x_train.dropna()) * 100 / len(x_train)
@@ -74,6 +89,12 @@ x_unprepared_test = test_dataset.copy()
 x_unprepared_test.dropna(inplace=True)
 x_unprepared_test.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1, inplace=True)
 
+y_unprepared_train = train_dataset[train_dataset['PassengerId'].isin(x_unprepared_train['PassengerId'])]
+y_unprepared_train = y_unprepared_train['Survived']
+
+y_unprepared_test = y_test[y_test['PassengerId'].isin(x_unprepared_test['PassengerId'])]
+y_unprepared_test = y_unprepared_test['Survived']
+
 # 'Embarked' - Порт высадки. Удалено, потому что является категориальным значением
 # 'Pclass' - Класс билета. Удалено, потому что является категориальным значением
 # 'Sex' - Пол. Удалено, потому что является категориальным значением
@@ -85,7 +106,7 @@ x_unprepared_test.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'],
 x_train_avg_filled = x_train.copy()
 x_test_avg_filled = x_test.copy()
 
-ages = x_train_avg_filled['Age'].to_list() + x_test_avg_filled['Age'].to_list()
+ages = x_train_avg_filled['Age'].dropna().to_list() + x_test_avg_filled['Age'].dropna().to_list()
 
 x_train_avg_filled['Age'] = x_train_avg_filled['Age'].fillna(sum(ages) / len(ages))
 x_test_avg_filled['Age'] = x_test_avg_filled['Age'].fillna(sum(ages) / len(ages))
@@ -102,74 +123,36 @@ x_test_rand_filled['Age'] = put_random(series=x_test_rand_filled['Age'],
                                        max_val=x_test_rand_filled['Age'].max())
 
 
-unprepared_model = LogisticRegression()
-unprepared_model.fit(x_unprepared_train, y_train)
-
-predictions = unprepared_model.predict(x_unprepared_test)
-
-accuracy = accuracy_score(y_test['Survived'], predictions)
-precision = precision_score(y_test['Survived'], predictions)
-recall = recall_score(y_test['Survived'], predictions)
-f1 = f1_score(y_test['Survived'], predictions)
-
-print('1 - выжил, 0 - погиб')
-print(f"accuracy: {accuracy}")
-print(f"precision: {precision}")
-print(f"recall: {recall}")
-print(f"f1: {f1}")
-
+model_operation(x=x_unprepared_train,
+                y=y_unprepared_train,
+                true_res=y_unprepared_test,
+                test_x=x_unprepared_test)
 # recall 1 потому что модель ни разу не предсказала 0 - смерть
+model_operation(x=x_train_avg_filled,
+                y=train_dataset['Survived'],
+                true_res=y_test['Survived'],
+                test_x=x_test_avg_filled)
+model_operation(x=x_train_rand_filled,
+                y=train_dataset['Survived'],
+                true_res=y_test['Survived'],
+                test_x=x_test_rand_filled)
 
 
-avg_filled_model = LogisticRegression()
-avg_filled_model.fit(x_train_avg_filled, y_train)
-
-predictions = avg_filled_model.predict(x_test_avg_filled)
-
-accuracy = accuracy_score(y_test['Survived'], predictions)
-precision = precision_score(y_test['Survived'], predictions)
-recall = recall_score(y_test['Survived'], predictions)
-f1 = f1_score(y_test['Survived'], predictions)
-
-print('1 - выжил, 0 - погиб')
-print(f"accuracy: {accuracy}")
-print(f"precision: {precision}")
-print(f"recall: {recall}")
-print(f"f1: {f1}")
-
-
-rand_filled_model = LogisticRegression()
-rand_filled_model.fit(x_train_rand_filled, y_train)
-
-predictions = rand_filled_model.predict(x_test_rand_filled)
-
-accuracy = accuracy_score(y_test['Survived'], predictions)
-precision = precision_score(y_test['Survived'], predictions)
-recall = recall_score(y_test['Survived'], predictions)
-f1 = f1_score(y_test['Survived'], predictions)
-
-print('1 - выжил, 0 - погиб')
-print(f"accuracy: {accuracy}")
-print(f"precision: {precision}")
-print(f"recall: {recall}")
-print(f"f1: {f1}")
-
-
-x_train_rand_filled, x_test_rand_filled = remove_outliers(train_df=x_train_rand_filled,
-                                                          test_df=x_test_rand_filled)
-
-rand_filled_model = LogisticRegression()
-rand_filled_model.fit(x_train_rand_filled, y_train)
-
-predictions = rand_filled_model.predict(x_test_rand_filled)
-
-accuracy = accuracy_score(y_test['Survived'], predictions)
-precision = precision_score(y_test['Survived'], predictions)
-recall = recall_score(y_test['Survived'], predictions)
-f1 = f1_score(y_test['Survived'], predictions)
-
-print('1 - выжил, 0 - погиб')
-print(f"accuracy: {accuracy}")
-print(f"precision: {precision}")
-print(f"recall: {recall}")
-print(f"f1: {f1}")
+# x_train_rand_filled, x_test_rand_filled = remove_outliers(train_df=x_train_rand_filled,
+#                                                           test_df=x_test_rand_filled)
+#
+# rand_filled_model = LogisticRegression()
+# rand_filled_model.fit(x_train_rand_filled, train_dataset['Survived'])
+#
+# predictions = rand_filled_model.predict(x_test_rand_filled)
+#
+# accuracy = accuracy_score(y_test['Survived'], predictions)
+# precision = precision_score(y_test['Survived'], predictions)
+# recall = recall_score(y_test['Survived'], predictions)
+# f1 = f1_score(y_test['Survived'], predictions)
+#
+# print('\n1 - выжил, 0 - погиб')
+# print(f"accuracy: {accuracy}")
+# print(f"precision: {precision}")
+# print(f"recall: {recall}")
+# print(f"f1: {f1}")
