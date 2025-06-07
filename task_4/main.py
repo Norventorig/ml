@@ -142,7 +142,6 @@ model_operation(x=x_train_rand_filled,
                 true_res=y_test['Survived'],
                 test_x=x_test_rand_filled)
 
-# recall 1 потому что модель ни разу не предсказала 0 - смерть
 
 x_train_avg_filled_without_outliers, x_test_avg_filled_without_outliers = remove_outliers(
     train_df=x_train_avg_filled,
@@ -156,7 +155,7 @@ x_train_rand_filled_without_outliers, x_test_rand_filled_without_outliers = remo
 
 model_operation(x=x_train_avg_filled_without_outliers,
                 y=train_dataset[train_dataset.index.isin(x_train_avg_filled_without_outliers.index)]['Survived'],
-                true_res=y_test[y_test.index.isin(x_train_avg_filled_without_outliers.index)]['Survived'],
+                true_res=y_test[y_test.index.isin(x_test_avg_filled_without_outliers.index)]['Survived'],
                 test_x=x_test_avg_filled_without_outliers)
 
 model_operation(x=x_train_rand_filled_without_outliers,
