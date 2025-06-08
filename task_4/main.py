@@ -73,8 +73,8 @@ x_test = test_dataset[['Sex', 'Age']]
 x_test_recoded = pd.get_dummies(x_test['Sex'])
 x_train_recoded = pd.get_dummies(x_train['Sex'])
 
-x_train = pd.concat([x_train, x_train_recoded], axis=1).drop('Sex', axis=1)
-x_test = pd.concat([x_test, x_test_recoded], axis=1).drop('Sex', axis=1)
+x_train = pd.concat([x_train, x_train_recoded], axis=1).drop(['Sex', 'female'], axis=1)
+x_test = pd.concat([x_test, x_test_recoded], axis=1).drop(['Sex', 'female'], axis=1)
 
 
 los_percentage_train = len(x_train.dropna()) * 100 / len(x_train)
