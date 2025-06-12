@@ -63,6 +63,32 @@ def remove_outliers(train_df: pd.DataFrame, test_df: pd.DataFrame, outlier_param
 orig_dataset = pd.read_csv('train.csv')
 
 
+orig_dataset_copy = orig_dataset[['Sex', 'Age', 'Survived']]
+
+x = orig_dataset_copy.drop('Survived', axis=1)
+y = orig_dataset_copy['Survived']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
+
+# Оставил пол так как в первую очередь спасали женщин.
+# Оставил возраст так как в первую очередь спасали детей.
+
+
+x_test_recoded = pd.get_dummies(x_test['Sex'])
+x_train_recoded = pd.get_dummies(x_train['Sex'])
+
+x_train = pd.concat([x_train, x_train_recoded], axis=1).drop(['Sex', 'female'], axis=1)
+x_test = pd.concat([x_test, x_test_recoded], axis=1).drop(['Sex', 'female'], axis=1)
+
+
+los_percentage_train = len(x_train.dropna()) * 100 / len(x_train)
+los_percentage_test = len(x_test.dropna()) * 100 / len(x_test)
+
+print(f'Процент данных, который будет потерян, если просто удалить пропуски:')
+print(f'Test - {los_percentage_test}')
+print(f'Train - {los_percentage_train}')
+
+
 orig_dataset_copy = orig_dataset.drop(['Embarked', 'Pclass', 'Sex', 'Name', 'Ticket', 'Cabin'], axis=1).dropna()
 
 x = orig_dataset_copy.drop('Survived', axis=1)
@@ -76,31 +102,6 @@ x_unprepared_train, x_unprepared_test, y_unprepared_train, y_unprepared_test = t
 # 'Name' - Имя. Удалено, потому что строка
 # 'Ticket' - Билет. Удалено, потому что смесь строки и числа, где строка это код класса, который мы удалили
 # 'Cabin' - Каюта. Удалено, потому что смесь строки и числа
-
-
-orig_dataset_copy = orig_dataset[['Sex', 'Age', 'Survived']]
-
-x = orig_dataset_copy.drop('Survived', axis=1)
-y = orig_dataset_copy['Survived']
-
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
-
-# Оставил пол так как в первую очередь спасали женщин.
-# Оставил возраст так как в первую очередь спасали детей.
-
-los_percentage_train = len(x_train.dropna()) * 100 / len(x_train)
-los_percentage_test = len(x_test.dropna()) * 100 / len(x_test)
-
-
-print(f'Процент данных, который будет потерян, если просто удалить пропуски:')
-print(f'Test - {los_percentage_test}')
-print(f'Train - {los_percentage_train}')
-
-x_test_recoded = pd.get_dummies(x_test['Sex'])
-x_train_recoded = pd.get_dummies(x_train['Sex'])
-
-x_train = pd.concat([x_train, x_train_recoded], axis=1).drop(['Sex', 'female'], axis=1)
-x_test = pd.concat([x_test, x_test_recoded], axis=1).drop(['Sex', 'female'], axis=1)
 
 
 x_train_avg_filled = x_train.copy()
