@@ -157,5 +157,5 @@ model_operation(train_x=x_train_avg_filled_without_outliers,
 
 model_operation(train_x=x_train_rand_filled_without_outliers,
                 train_y=orig_dataset[orig_dataset.index.isin(x_train_rand_filled_without_outliers.index)]['Survived'],
-                test_y=y_test[y_test.index.isin(x_test_rand_filled_without_outliers.index)]['Survived'],
+                test_y=orig_dataset[orig_dataset.index.isin(x_test_rand_filled_without_outliers.index)]['Survived'],
                 test_x=x_test_rand_filled_without_outliers)
