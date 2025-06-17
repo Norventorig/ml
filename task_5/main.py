@@ -15,4 +15,7 @@ import pandas as pd
 
 df = pd.DataFrame(data=fetch_california_housing().data)
 
-print('Пропуски есть' if 0 != sum(df.isnull().sum().to_list()) else 'Пропусков нет')
+null_count = sum(df.isnull().sum().to_list())
+print('Пропуски есть' if 0 != null_count else 'Пропусков нет')
+df.dropna(axis=1, inplace=True)
+
