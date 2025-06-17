@@ -1,5 +1,6 @@
 from sklearn.datasets import fetch_california_housing
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -34,5 +35,8 @@ Y = df['MedHouseVal']
 train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
 
 scaler = StandardScaler()
-train_x = scaler.fit_transform(train_x)
-test_x = scaler.transform(test_x)
+train_x = scaler.fit_transform(X=train_x)
+test_x = scaler.transform(X=test_x)
+
+model = LinearRegression()
+model.fit(X=train_x, y=train_y)
