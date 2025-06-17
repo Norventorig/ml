@@ -22,7 +22,7 @@ null_count = sum(df.isnull().sum().to_list())
 print('Пропуски есть' if 0 != null_count else 'Пропусков нет')
 df.dropna(axis=1, inplace=True)
 
-X = df[['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude']]
-Y = df['MedInc']
+X = df[['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude', 'MedInc']]
+Y = df['MedHouseVal']
 
 train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
