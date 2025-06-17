@@ -51,6 +51,12 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
 
+q1 = np.quantile(predictions, 0.25)
+q3 = np.quantile(predictions, 0.75)
+iqr = q3 - q1
+lower_bound = q1 - iqr * 1.5
+upper_bound = q3 + iqr * 1.5
+
 plt.hist(predictions, bins=100, color='skyblue', edgecolor='black')
 plt.title('Гистограмма распределения целевой переменной')
 plt.xlabel('Значение целевой переменной')
