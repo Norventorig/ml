@@ -32,3 +32,7 @@ X = df[['HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude
 Y = df['MedHouseVal']
 
 train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
+
+scaler = StandardScaler()
+train_x = scaler.fit_transform(train_x)
+test_x = scaler.transform(test_x)
