@@ -62,3 +62,16 @@ plt.title('Гистограмма распределения целевой пе
 plt.xlabel('Значение целевой переменной')
 plt.ylabel('Частота')
 plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.boxplot(predictions, vert=False, patch_artist=True)
+
+plt.axvline(lower_bound, color='r', linestyle='--', alpha=0.7, label=f'Lower bound: {lower_bound:.2f}')
+plt.axvline(upper_bound, color='g', linestyle='--', alpha=0.7, label=f'Upper bound: {upper_bound:.2f}')
+
+plt.title('Коробка с усами для предсказаний модели', fontsize=14)
+plt.xlabel('Предсказанные значения', fontsize=12)
+plt.grid(axis='x', alpha=0.3)
+plt.legend()
+plt.tight_layout()
+plt.show()
