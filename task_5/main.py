@@ -1,6 +1,12 @@
 from sklearn.datasets import fetch_california_housing
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+
 
 # :Attribute Information:
 #     - MedInc        median income in block group
