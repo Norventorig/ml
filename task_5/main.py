@@ -1,8 +1,10 @@
 from sklearn.datasets import fetch_california_housing
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+import numpy as np
 
 
 pd.set_option('display.max_columns', None)
@@ -40,3 +42,10 @@ test_x = scaler.transform(X=test_x)
 
 model = LinearRegression()
 model.fit(X=train_x, y=train_y)
+
+predictions = model.predict(X=test_x)
+
+rmse = np.sqrt(np.mean((predictions - test_y) ** 2))
+r2 = r2_score(y_true=test_y, y_pred=predictions)
+
+print(f'\nRMSE: {rmse}\nR2: {r2}')
