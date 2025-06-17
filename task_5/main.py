@@ -75,3 +75,5 @@ plt.grid(axis='x', alpha=0.3)
 plt.legend()
 plt.tight_layout()
 plt.show()
+
+print('Да, выбросов много')
