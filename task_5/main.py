@@ -13,7 +13,9 @@ from sklearn.model_selection import train_test_split
 #     - Longitude     block group longitude
 
 
-df = pd.DataFrame(data=fetch_california_housing().data)
+data = fetch_california_housing(as_frame=True)
+df = pd.DataFrame(data=data.data, columns=data.feature_names)
+df['MedHouseVal'] = data.target
 
 
 null_count = sum(df.isnull().sum().to_list())
