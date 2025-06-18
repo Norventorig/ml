@@ -108,3 +108,10 @@ plt.tight_layout()
 plt.show()
 
 df.drop(axis=1, inplace=True, columns=bad_correlations.index)
+
+X = df.drop('MedHouseVal', axis=1)
+Y = df['MedHouseVal']
+
+train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
+
+model.fit(X=train_x, y=train_y)
