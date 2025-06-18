@@ -76,4 +76,11 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-print('Да, выбросов много')
+print('\nДа, выбросов много')
+
+correlations = df.corr().loc['MedHouseVal']
+bad_correlations = correlations[abs(correlations) <= 0.1]
+good_correlations = correlations[abs(correlations) > 0.1]
+
+print(f'\nПлохие корреляции: \n{bad_correlations}')
+print(f'\nХорошие корреляции: \n{good_correlations}')
