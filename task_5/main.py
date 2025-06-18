@@ -106,3 +106,5 @@ plt.yticks(rotation=0)
 plt.tight_layout()
 
 plt.show()
+
+df.drop(axis=1, inplace=True, columns=bad_correlations.index)
