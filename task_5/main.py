@@ -10,7 +10,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def make_boxplot(param: pandas.Series, lower: float, upper: float, title='Коробка с усами'):
+def make_boxplot(param: pandas.Series, title='Коробка с усами'):
+    """
+    Функция вычисляет нижнюю и верхнюю границы выбросов, а после выводит график коробка с усами
+    :param param:
+    :param title:
+    :return:
+    """
+    q1 = np.quantile(param, 0.25)
+    q3 = np.quantile(param, 0.75)
+    iqr = q3 - q1
+
+    lower = q1 - iqr * 1.5
+    upper = q3 + iqr * 1.5
+
     plt.figure(figsize=(10, 6))
     plt.boxplot(param, vert=False, patch_artist=True)
 
@@ -23,22 +36,6 @@ def make_boxplot(param: pandas.Series, lower: float, upper: float, title='Кор
     plt.tight_layout()
     plt.show()
 
-
-def define_outliers(param: pandas.Series):
-    """
-    Функция рассчитывающая нижнюю и верхнюю границы выбросов
-    :param param: 
-    :return lower, upper: 
-    """
-    q1 = np.quantile(param, 0.25)
-    q3 = np.quantile(param, 0.75)
-
-    iqr = q3 - q1
-
-    lower = q1 - iqr * 1.5
-    upper = q3 + iqr * 1.5
-
-    return lower, upper
 
 # :Attribute Information:
 #     - MedInc        median income in block group
@@ -85,8 +82,7 @@ plt.xlabel('Значение целевой переменной')
 plt.ylabel('Частота')
 plt.show()
 
-lower_bound, upper_bound = define_outliers(param=predictions)
-make_boxplot(param=predictions, lower=lower_bound, upper=upper_bound, title='Коробка с усами для предсказаний')
+make_boxplot(param=predictions, title='Коробка с усами для предсказаний')
 
 print('\nДа, выбросов много')
 
@@ -134,4 +130,6 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
 
-
+gen = (X[i] for i in X.columns)
+for i in gen:
+    make_boxplot(param=i, title=f'Коробка с усами по параметру {i.name}')
