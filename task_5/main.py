@@ -9,9 +9,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
+def define_outliers(param):
+    """
+    Функция рассчитывающая нижнюю и верхнюю границы выбросов
+    :param param: 
+    :return lower, upper: 
+    """
+    q1 = np.quantile(param, 0.25)
+    q3 = np.quantile(param, 0.75)
 
+    iqr = q3 - q1
+
+    lower = q1 - iqr * 1.5
+    upper = q3 + iqr * 1.5
+
+    return lower, upper
 
 # :Attribute Information:
 #     - MedInc        median income in block group
@@ -52,11 +64,7 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
 
-q1 = np.quantile(predictions, 0.25)
-q3 = np.quantile(predictions, 0.75)
-iqr = q3 - q1
-lower_bound = q1 - iqr * 1.5
-upper_bound = q3 + iqr * 1.5
+lower_bound, upper_bound = define_outliers(param=predictions)
 
 plt.hist(predictions, bins=100, color='skyblue', edgecolor='black')
 plt.title('Гистограмма распределения целевой переменной')
@@ -115,3 +123,4 @@ Y = df['MedHouseVal']
 train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
 
 model.fit(X=train_x, y=train_y)
+
