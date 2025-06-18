@@ -81,7 +81,7 @@ print('\nДа, выбросов много')
 
 correlations = df.corr()
 bad_correlations = correlations.loc['MedHouseVal'][abs(correlations.loc['MedHouseVal']) <= 0.1]
-good_correlations = correlations.loc['MedHouseVal'][abs(correlations.loc['MedHouseVal']) > 0.1]
+good_correlations = correlations.loc['MedHouseVal'][abs(correlations.loc['MedHouseVal']) > 0.1].drop('MedHouseVal')
 
 print(f'\nПлохие корреляции: \n{bad_correlations}')
 print(f'\nХорошие корреляции: \n{good_correlations}')
