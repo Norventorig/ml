@@ -124,3 +124,9 @@ train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_
 
 model.fit(X=train_x, y=train_y)
 
+predictions = model.predict(X=test_x)
+
+rmse = np.sqrt(np.mean((predictions - test_y) ** 2))
+r2 = r2_score(y_true=test_y, y_pred=predictions)
+
+print(f'\nRMSE: {rmse}\nR2: {r2}')
