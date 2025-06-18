@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 pd.set_option('display.max_columns', None)
@@ -78,9 +79,30 @@ plt.show()
 
 print('\nДа, выбросов много')
 
-correlations = df.corr().loc['MedHouseVal']
-bad_correlations = correlations[abs(correlations) <= 0.1]
-good_correlations = correlations[abs(correlations) > 0.1]
+correlations = df.corr()
+bad_correlations = correlations.loc['MedHouseVal'][abs(correlations.loc['MedHouseVal']) <= 0.1]
+good_correlations = correlations.loc['MedHouseVal'][abs(correlations.loc['MedHouseVal']) > 0.1]
 
 print(f'\nПлохие корреляции: \n{bad_correlations}')
 print(f'\nХорошие корреляции: \n{good_correlations}')
+
+mask = np.zeros_like(correlations, dtype=bool)
+mask[np.triu_indices_from(mask)] = True
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlations,
+            mask=mask,
+            annot=True,
+            fmt=".2f",
+            cmap='coolwarm',
+            vmin=-1,
+            vmax=1,
+            linewidths=0.5,
+            cbar_kws={"shrink": .8})
+
+plt.title('Матрица корреляций', pad=20, fontsize=16)
+plt.xticks(rotation=45)
+plt.yticks(rotation=0)
+plt.tight_layout()
+
+plt.show()
