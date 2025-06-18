@@ -1,3 +1,4 @@
+import pandas
 from sklearn.datasets import fetch_california_housing
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -9,7 +10,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def define_outliers(param):
+def make_boxplot(param: pandas.Series, lower: float, upper: float, title='Коробка с усами'):
+    plt.figure(figsize=(10, 6))
+    plt.boxplot(param, vert=False, patch_artist=True)
+
+    plt.axvline(lower, color='r', linestyle='--', alpha=0.7, label=f'Lower bound: {lower:.2f}')
+    plt.axvline(upper, color='g', linestyle='--', alpha=0.7, label=f'Upper bound: {upper:.2f}')
+
+    plt.title(title, fontsize=14)
+    plt.grid(axis='x', alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+def define_outliers(param: pandas.Series):
     """
     Функция рассчитывающая нижнюю и верхнюю границы выбросов
     :param param: 
@@ -64,26 +79,14 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
 
-lower_bound, upper_bound = define_outliers(param=predictions)
-
 plt.hist(predictions, bins=100, color='skyblue', edgecolor='black')
 plt.title('Гистограмма распределения целевой переменной')
 plt.xlabel('Значение целевой переменной')
 plt.ylabel('Частота')
 plt.show()
 
-plt.figure(figsize=(10, 6))
-plt.boxplot(predictions, vert=False, patch_artist=True)
-
-plt.axvline(lower_bound, color='r', linestyle='--', alpha=0.7, label=f'Lower bound: {lower_bound:.2f}')
-plt.axvline(upper_bound, color='g', linestyle='--', alpha=0.7, label=f'Upper bound: {upper_bound:.2f}')
-
-plt.title('Коробка с усами для предсказаний модели', fontsize=14)
-plt.xlabel('Предсказанные значения', fontsize=12)
-plt.grid(axis='x', alpha=0.3)
-plt.legend()
-plt.tight_layout()
-plt.show()
+lower_bound, upper_bound = define_outliers(param=predictions)
+make_boxplot(param=predictions, lower=lower_bound, upper=upper_bound, title='Коробка с усами для предсказаний')
 
 print('\nДа, выбросов много')
 
@@ -130,3 +133,5 @@ rmse = np.sqrt(np.mean((predictions - test_y) ** 2))
 r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
+
+
