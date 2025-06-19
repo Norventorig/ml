@@ -12,17 +12,12 @@ import seaborn as sns
 
 def make_boxplot(param: pandas.Series, title='Коробка с усами'):
     """
-    Функция вычисляет нижнюю и верхнюю границы выбросов, а после выводит график коробка с усами
+    Функция выводит график коробка с усами
     :param param:
     :param title:
     :return:
     """
-    q1 = np.quantile(param, 0.25)
-    q3 = np.quantile(param, 0.75)
-    iqr = q3 - q1
-
-    lower = q1 - iqr * 1.5
-    upper = q3 + iqr * 1.5
+    lower, upper = define_outliers(param=param)
 
     plt.figure(figsize=(10, 6))
     plt.boxplot(param, vert=False, patch_artist=True)
@@ -35,6 +30,23 @@ def make_boxplot(param: pandas.Series, title='Коробка с усами'):
     plt.legend()
     plt.tight_layout()
     plt.show()
+
+
+def define_outliers(param):
+    """
+    Функция рассчитывающая нижнюю и верхнюю границы выбросовAdd commentMore actions
+    :param param:
+    :return lower, upper:
+    """
+    q1 = np.quantile(param, 0.25)
+    q3 = np.quantile(param, 0.75)
+
+    iqr = q3 - q1
+
+    lower = q1 - iqr * 1.5
+    upper = q3 + iqr * 1.5
+
+    return lower, upper
 
 
 # :Attribute Information:
