@@ -124,7 +124,6 @@ plt.title('Матрица корреляций', pad=20, fontsize=16)
 plt.xticks(rotation=45)
 plt.yticks(rotation=0)
 plt.tight_layout()
-
 plt.show()
 
 df.drop(axis=1, inplace=True, columns=bad_correlations.index)
@@ -147,9 +146,10 @@ gen = (make_boxplot(param=train_x[i], title=f'Коробка с усами по 
 for i in gen:
     continue
 
-for i in X.columns:
+for i in train_x.columns:
     lower_bound, upper_bound = define_outliers(param=train_x[i])
     column = train_x[i]
     mask = (column < lower_bound) | (column > upper_bound)
     loss_percentage = round(column[mask].count() / column.count(), 2)
+    train_x = train_x[~mask]
     print(f'{loss_percentage * 100}% выбросов в признаке {column.name}')
