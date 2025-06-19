@@ -32,10 +32,11 @@ def make_boxplot(param: pandas.Series, title='Коробка с усами'):
     plt.show()
 
 
-def define_outliers(param):
+def define_outliers(param: pandas.Series, threshold: float = 1.5):
     """
     Функция рассчитывающая нижнюю и верхнюю границы выбросовAdd commentMore actions
     :param param:
+    :param threshold:
     :return lower, upper:
     """
     q1 = np.quantile(param, 0.25)
@@ -43,8 +44,8 @@ def define_outliers(param):
 
     iqr = q3 - q1
 
-    lower = q1 - iqr * 1.5
-    upper = q3 + iqr * 1.5
+    lower = q1 - iqr * threshold
+    upper = q3 + iqr * threshold
 
     return lower, upper
 
@@ -145,3 +146,4 @@ print(f'\nRMSE: {rmse}\nR2: {r2}')
 gen = (X[i] for i in X.columns)
 for i in gen:
     make_boxplot(param=i, title=f'Коробка с усами по параметру {i.name}')
+
