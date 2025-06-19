@@ -143,13 +143,13 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}\n')
 
-gen = (make_boxplot(param=X[i], title=f'Коробка с усами по параметру {X[i].name}') for i in X.columns)
+gen = (make_boxplot(param=train_x[i], title=f'Коробка с усами по параметру {train_x[i].name}') for i in train_x.columns)
 for i in gen:
     continue
 
 for i in X.columns:
-    lower_bound, upper_bound = define_outliers(param=X[i])
-    column = X[i]
+    lower_bound, upper_bound = define_outliers(param=train_x[i])
+    column = train_x[i]
     mask = (column < lower_bound) | (column > upper_bound)
     loss_percentage = round(column[mask].count() / column.count(), 2)
     print(f'{loss_percentage * 100}% выбросов в признаке {column.name}')
