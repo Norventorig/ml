@@ -10,6 +10,25 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+def calculate_metrics(x: pandas.DataFrame, y: pandas.Series, size: float = 0.2, rs: int = None):
+    """
+    Функция, которая рассчитывает и возвращает метрики RMSE и R2
+    :param x:
+    :param y:
+    :param size:
+    :param rs:
+    :return:
+    """
+    in_train_x, in_test_x, in_train_y, in_test_y = train_test_split(x, y, test_size=size, random_state=rs)
+    model.fit(X=in_train_x, y=in_train_y)
+    in_predictions = model.predict(X=in_test_x)
+
+    in_rmse = np.sqrt(np.mean((in_predictions - in_test_y) ** 2))
+    in_r2 = r2_score(y_true=in_test_y, y_pred=in_predictions)
+
+    return in_rmse, in_r2
+
+
 def make_boxplot(param: pandas.Series, title='Коробка с усами'):
     """
     Функция выводит график коробка с усами
@@ -131,14 +150,7 @@ df.drop(axis=1, inplace=True, columns=bad_correlations.index)
 X = df.drop('MedHouseVal', axis=1)
 Y = df['MedHouseVal']
 
-train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
-
-model.fit(X=train_x, y=train_y)
-
-predictions = model.predict(X=test_x)
-
-rmse = np.sqrt(np.mean((predictions - test_y) ** 2))
-r2 = r2_score(y_true=test_y, y_pred=predictions)
+rmse, r2 = calculate_metrics(x=X, y=Y)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}\n')
 
