@@ -166,3 +166,10 @@ for i in df.drop('MedHouseVal', axis=1).columns:
     df = df[~mask]
     print(f'{loss_percentage * 100}% выбросов в признаке {column.name}')
 
+
+X = df.drop('MedHouseVal', axis=1)
+Y = df['MedHouseVal']
+
+rmse, r2 = calculate_metrics(x=X, y=Y)
+
+print(f'\nRMSE: {rmse}\nR2: {r2}\n')
