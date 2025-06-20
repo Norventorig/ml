@@ -1,11 +1,13 @@
 import pandas
-from sklearn.datasets import fetch_california_housing
+import numpy as np
 import pandas as pd
+
+from sklearn.datasets import fetch_california_housing
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-import numpy as np
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -108,14 +110,13 @@ r2 = r2_score(y_true=test_y, y_pred=predictions)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}')
 
-plt.hist(predictions, bins=100, color='skyblue', edgecolor='black')
+plt.hist(Y, bins=100, color='skyblue', edgecolor='black')
 plt.title('Гистограмма распределения целевой переменной')
 plt.xlabel('Значение целевой переменной')
 plt.ylabel('Частота')
 plt.show()
 
-make_boxplot(param=predictions, title='Коробка с усами для предсказаний')
-
+make_boxplot(param=Y, title='Коробка с усами для целевой переменной')
 print('\nДа, выбросов много')
 
 correlations = df.corr()
@@ -173,6 +174,7 @@ Y = df['MedHouseVal']
 rmse, r2 = calculate_metrics(x=X, y=Y)
 
 print(f'\nRMSE: {rmse}\nR2: {r2}\n')
+
 
 df['MedInc'] = np.log(df['MedInc'])
 df['HouseAge'] = np.sqrt(df['HouseAge'])
