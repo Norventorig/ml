@@ -159,13 +159,23 @@ for i in gen:
     continue
 
 for i in df.drop('MedHouseVal', axis=1).columns:
-    lower_bound, upper_bound = define_outliers(param=train_x[i])
+    lower_bound, upper_bound = define_outliers(param=df[i])
     column = df[i]
     mask = (column < lower_bound) | (column > upper_bound)
     loss_percentage = round(column[mask].count() / column.count(), 2)
     df = df[~mask]
     print(f'{loss_percentage * 100}% выбросов в признаке {column.name}')
 
+
+X = df.drop('MedHouseVal', axis=1)
+Y = df['MedHouseVal']
+
+rmse, r2 = calculate_metrics(x=X, y=Y)
+
+print(f'\nRMSE: {rmse}\nR2: {r2}\n')
+
+df['MedInc'] = np.log(df['MedInc'])
+df['HouseAge'] = np.sqrt(df['HouseAge'])
 
 X = df.drop('MedHouseVal', axis=1)
 Y = df['MedHouseVal']
