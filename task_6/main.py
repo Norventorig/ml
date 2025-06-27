@@ -78,3 +78,8 @@ best_DTR_score = \
             for i_depth in range(15, 2, -1)
         ]
     )[0]
+
+
+print(f'\n\nЛинейная регрессия: {LR_score}'
+      f'\nДрево решений: {DTR_score}'
+      f'\nМодифицированное древо решений: {best_DTR_score}')
