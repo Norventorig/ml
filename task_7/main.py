@@ -21,7 +21,7 @@ dataset = dataset.rename(columns={'ExerciseAngina_Y': 'ExerciseAngina', 'Sex_M':
 X = dataset.drop('HeartDisease', axis=1)
 Y = dataset['HeartDisease']
 
-train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2)
+train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
 
 
 dtc = DecisionTreeClassifier()
@@ -69,3 +69,9 @@ plt.tight_layout()
 plt.show()
 
 
+# Показатели качества: StackingClassifier > RandomForestClassifier > BaggingClassifier > DecisionTreeClassifier
+# StackingClassifier лучшая модель. Я с этим согласен.
+# Так как она использует ансамблирование и использует множество РАЗЛИЧНЫХ базовых моделей.
+# А также использует кросс валидацию в процессе обучения
+# DecisionTreeClassifier худшая модель так как является базовой.
+# Единственное, что остается для меня не ясным это почему RandomForestClassifier > BaggingClassifier.
