@@ -5,6 +5,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import StackingClassifier
+from sklearn.svm import LinearSVC
 
 
 dataset = pd.read_csv('dataset.csv')
@@ -25,18 +27,25 @@ train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2)
 dtc = DecisionTreeClassifier()
 rfc = RandomForestClassifier()
 bc = BaggingClassifier(n_estimators=15, max_samples=0.8)
+sc = StackingClassifier(estimators=[('dtc', DecisionTreeClassifier()),
+                                    ('rfc', RandomForestClassifier()),
+                                    ('lsvc', LinearSVC())],
+                        cv=5)
 
 dtc.fit(X=train_x, y=train_y)
 rfc.fit(X=train_x, y=train_y)
-bc.fit(train_x, train_y)
+bc.fit(X=train_x, y=train_y)
+sc.fit(X=train_x, y=train_y)
 
 dtc_rep = classification_report(y_true=test_y, y_pred=dtc.predict(test_x))
 rfc_rep = classification_report(y_true=test_y, y_pred=rfc.predict(test_x))
 bc_rep = classification_report(y_true=test_y, y_pred=bc.predict(test_x))
+sc_rep = classification_report(y_true=test_y, y_pred=sc.predict(test_x))
 
 print(f"\nМетрики BaggingClassifier:\n{bc_rep}")
 print(f"\nМетрики RandomForestClassifier:\n{rfc_rep}")
 print(f"\nМетрики DecisionTreeClassifier:\n{dtc_rep}")
+print(f"\nМетрики StackingClassifier:\n{sc_rep}")
 
 
 feature_importance_df = pd.DataFrame(data={'Importance': rfc.feature_importances_, 'Column': train_x.columns})
@@ -58,3 +67,5 @@ plt.grid(axis='x', alpha=0.3)
 plt.tight_layout()
 
 plt.show()
+
+
