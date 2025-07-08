@@ -1,9 +1,15 @@
 import pandas as pd
 import numpy as np
+
 from matplotlib import pyplot as plt
 import seaborn as sns
+
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, IsolationForest
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.ensemble import IsolationForest
+from sklearn.cluster import DBSCAN
+
 
 dataset = pd.read_csv('dataset.csv')
 
@@ -38,11 +44,16 @@ for col in dataset.drop('Type', axis=1).columns.to_list():
     plt.show()
 # Единственный признак с нормальным распределением "Mg"
 
-model = IsolationForest(contamination=0.1)
-model.fit(dataset)
+model_IF = IsolationForest(contamination=0.1)
+model_DBS = DBSCAN(eps=0.5, min_samples=5)
 
 df = dataset.copy()
-df['is_anomaly'] = model.predict(dataset)
-df['is_anomaly'] = df['is_anomaly'].map({1: 0, -1: 1})
+
+df['Outlier_IF'] = model_IF.fit_predict(dataset)
+df['Outlier_IF'] = df['Outlier_IF'].map({1: False, -1: True})
+
+df['Outlier_DBS'] = model_DBS.fit_predict(dataset)
+df['Outlier_DBS'] = df['Outlier_DBS'].map({-1: True})
+df['Outlier_DBS'].fillna(inplace=True, value=False)
 
 print(df)
