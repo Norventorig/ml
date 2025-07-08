@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, IsolationForest
 
 dataset = pd.read_csv('dataset.csv')
 
@@ -37,3 +37,12 @@ for col in dataset.drop('Type', axis=1).columns.to_list():
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.show()
 # Единственный признак с нормальным распределением "Mg"
+
+model = IsolationForest(contamination=0.1)
+model.fit(dataset)
+
+df = dataset.copy()
+df['is_anomaly'] = model.predict(dataset)
+df['is_anomaly'] = df['is_anomaly'].map({1: 0, -1: 1})
+
+print(df)
