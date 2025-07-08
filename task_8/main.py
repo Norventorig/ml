@@ -74,13 +74,24 @@ for col in dataset.drop('Type', axis=1).columns.to_list():
 model_IF = IsolationForest(contamination=0.1)
 model_DBS = DBSCAN(eps=1, min_samples=5)
 
-df = X.copy()
+df = dataset.copy()
 
-df['Outlier_IF'] = model_IF.fit_predict(df)
-df['Outlier_DBS'] = model_DBS.fit_predict(df)
+df['Outlier_IF'] = model_IF.fit_predict(X)
+df['Outlier_DBS'] = model_DBS.fit_predict(X)
 
 print(f"\nloss data percentage according to Isolation Forest: {len(df[df['Outlier_IF'] == -1]) / len(df) * 100}")
 print(f"loss data percentage according to DBSCAN: {len(df[df['Outlier_DBS'] == -1]) / len(df) * 100}")
 print(f"loss data percentage according to IQR: {define_outliers(param=X) / len(df) * 100}")
 
 df = df[df['Outlier_IF'] != -1]
+
+
+X = df.drop(axis=1, columns=['Type', 'Outlier_IF', 'Outlier_DBS'])
+Y = df['Type']
+
+train_x, test_x, train_y, test_y = train_test_split(X, Y, test_size=0.2, random_state=1)
+
+model = RandomForestClassifier()
+model.fit(X=train_x, y=train_y)
+
+print(f'\nТочность модели: {model.score(X=test_x, y=test_y)}')
