@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from matplotlib import pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
@@ -25,3 +27,13 @@ model.fit(X=train_x, y=train_y)
 
 
 print(f'\nТочность модели: {model.score(X=test_x, y=test_y)}')
+
+
+for col in dataset.drop('Type', axis=1).columns.to_list():
+    plt.figure(figsize=(8, 6))
+    plt.boxplot(dataset[col], vert=False)
+    plt.title(f'Boxplot для признака "{col}"')
+    plt.xlabel('Значения')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.show()
+# Единственный признак с нормальным распределением "Mg"
