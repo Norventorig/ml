@@ -82,3 +82,5 @@ df['Outlier_DBS'] = model_DBS.fit_predict(df)
 print(f"\nloss data percentage according to Isolation Forest: {len(df[df['Outlier_IF'] == -1]) / len(df) * 100}")
 print(f"loss data percentage according to DBSCAN: {len(df[df['Outlier_DBS'] == -1]) / len(df) * 100}")
 print(f"loss data percentage according to IQR: {define_outliers(param=X) / len(df) * 100}")
+
+df = df[df['Outlier_IF'] != -1]
