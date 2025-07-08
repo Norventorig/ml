@@ -11,6 +11,33 @@ from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN
 
 
+def define_outliers(param: pd.DataFrame, threshold: float = 1.5) -> int:
+    """
+    Функция рассчитывающая кол_во выбросов
+    :param param:
+    :param threshold:
+    :return amount:
+    """
+    masks = {}
+
+    for col in param.columns.to_list():
+        q1 = np.quantile(param[col], 0.25)
+        q3 = np.quantile(param[col], 0.75)
+
+        iqr = q3 - q1
+
+        lower = q1 - iqr * threshold
+        upper = q3 + iqr * threshold
+
+        masks[col] = (param[col] < lower) | (param[col] > upper)
+
+    for col, mask in masks.items():
+        mask = mask[mask.index.isin(param.index)]
+        param = param[~mask]
+
+    return len(param)
+
+
 dataset = pd.read_csv('dataset.csv')
 
 
@@ -45,15 +72,13 @@ for col in dataset.drop('Type', axis=1).columns.to_list():
 # Единственный признак с нормальным распределением "Mg"
 
 model_IF = IsolationForest(contamination=0.1)
-model_DBS = DBSCAN(eps=0.5, min_samples=5)
+model_DBS = DBSCAN(eps=1, min_samples=5)
 
-df = dataset.copy()
+df = X.copy()
 
-df['Outlier_IF'] = model_IF.fit_predict(dataset)
-df['Outlier_IF'] = df['Outlier_IF'].map({1: False, -1: True})
+df['Outlier_IF'] = model_IF.fit_predict(df)
+df['Outlier_DBS'] = model_DBS.fit_predict(df)
 
-df['Outlier_DBS'] = model_DBS.fit_predict(dataset)
-df['Outlier_DBS'] = df['Outlier_DBS'].map({-1: True})
-df['Outlier_DBS'].fillna(inplace=True, value=False)
-
-print(df)
+print(f"\nloss data percentage according to Isolation Forest: {len(df[df['Outlier_IF'] == -1]) / len(df) * 100}")
+print(f"loss data percentage according to DBSCAN: {len(df[df['Outlier_DBS'] == -1]) / len(df) * 100}")
+print(f"loss data percentage according to IQR: {define_outliers(param=X) / len(df) * 100}")
