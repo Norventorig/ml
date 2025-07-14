@@ -1,7 +1,9 @@
 import pandas
 from sklearn.datasets import make_classification
-from sklearn.feature_selection import VarianceThreshold, f_classif, SelectKBest, SelectFromModel
+from sklearn.feature_selection import VarianceThreshold, f_classif, SelectKBest, SelectFromModel, \
+    SequentialFeatureSelector
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 
 
@@ -106,3 +108,40 @@ mean_accuracy = cross_val_score(estimator=LogisticRegression(),
                                 X=x, y=y, cv=5, scoring='accuracy').mean()
 
 output += f"\nСредняя точность после сортировки признаков L1 регуляризацией: {mean_accuracy}"
+
+
+x = dataset.drop('class', axis=1)
+y = dataset['class']
+
+model = RandomForestClassifier(max_depth=40)
+model.fit(x, y)
+
+selected_features = pandas.Series(data=model.feature_importances_, index=x.columns).nlargest(3).index
+
+x = dataset[selected_features]
+y = dataset['class']
+
+mean_accuracy = cross_val_score(estimator=LogisticRegression(),
+                                X=x, y=y, cv=5, scoring='accuracy').mean()
+
+output += f"\nСредняя точность после сортировки признаков RFC: {mean_accuracy}"
+
+
+x = dataset.drop('class', axis=1)
+y = dataset['class']
+
+selector = SequentialFeatureSelector(estimator=LogisticRegression(), direction='backward',
+                                     scoring='accuracy', n_features_to_select=3)
+
+selector.fit(x, y)
+
+x = dataset[dataset.drop('class', axis=1).columns[selector.get_support()]]
+y = dataset['class']
+
+mean_accuracy = cross_val_score(estimator=LogisticRegression(),
+                                X=x, y=y, cv=5, scoring='accuracy').mean()
+
+output += f"\nСредняя точность после сортировки признаков SequentialFeatureSelector: {mean_accuracy}"
+
+
+print(output)
