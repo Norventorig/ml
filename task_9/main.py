@@ -1,8 +1,11 @@
 import pandas
 from sklearn.datasets import make_classification
-from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import VarianceThreshold, f_classif, SelectKBest
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
+
+
+output = str()
 
 
 x_data_generated, y_data_generated = make_classification(scale=1)
@@ -13,16 +16,25 @@ y_data = pandas.Series(data=y_data_generated, name='class')
 dataset = pandas.concat([x_data, y_data], axis=1)
 
 
+x = dataset.drop('class', axis=1)
+y = dataset['class']
+
+mean_ac_before_improvement = cross_val_score(estimator=LogisticRegression(),
+                                             X=x, y=y, cv=5, scoring='accuracy').mean()
+
+output += f"\nСредняя точность до сортировки признаков: {mean_ac_before_improvement}"
+
+
 corr_matrix = dataset.corr().loc[dataset.columns, 'class']
 improved_dataset = dataset[corr_matrix[corr_matrix.abs() >= 0.5].index]
 
 X_temp = improved_dataset.drop('class', axis=1)
 y_temp = improved_dataset['class']
 
-var_thr = VarianceThreshold(threshold=0.1)
-X_temp_selected = var_thr.fit_transform(X_temp)
+selector = VarianceThreshold(threshold=0.1)
+X_temp_selected = selector.fit_transform(X_temp)
 
-selected_columns = X_temp.columns[var_thr.get_support()]
+selected_columns = X_temp.columns[selector.get_support()]
 improved_dataset = pandas.DataFrame(
     X_temp_selected,
     columns=selected_columns,
@@ -30,17 +42,40 @@ improved_dataset = pandas.DataFrame(
 )
 improved_dataset['class'] = y_temp
 
+x = improved_dataset.drop('class', axis=1)
+y = improved_dataset['class']
 
-x_bi = dataset.drop('class', axis=1)
-y_bi = dataset['class']
+mean_accuracy = cross_val_score(estimator=LogisticRegression(),
+                                X=x, y=y, cv=5, scoring='accuracy').mean()
 
-x_ai = improved_dataset.drop('class', axis=1)
-y_ai = improved_dataset['class']
+output += f"\nСредняя точность после сортировки признаков основе матрицы корреляции: {mean_accuracy}"
 
-mean_ac_before_improvement = cross_val_score(estimator=LogisticRegression(),
-                                             X=x_bi, y=y_bi, cv=5, scoring='accuracy').mean()
-mean_ac_after_improvement = cross_val_score(estimator=LogisticRegression(),
-                                             X=x_ai, y=y_ai, cv=5, scoring='accuracy').mean()
 
-print(f"Средняя точность до сортировки признаков: {mean_ac_before_improvement}"
-      f"\nСредняя точность после сортировки признаков: {mean_ac_after_improvement}")
+improved_dataset = dataset.copy()
+
+X_temp = improved_dataset.drop('class', axis=1)
+y_temp = improved_dataset['class']
+
+selector = SelectKBest(score_func=f_classif, k=5)
+
+X_temp_selected = selector.fit_transform(X_temp, y_temp)
+
+selected_columns = X_temp.columns[selector.get_support()]
+
+improved_dataset = pandas.DataFrame(
+    X_temp_selected,
+    columns=selected_columns,
+    index=X_temp.index
+)
+improved_dataset['class'] = y_temp
+
+x = improved_dataset.drop('class', axis=1)
+y = improved_dataset['class']
+
+mean_accuracy = cross_val_score(estimator=LogisticRegression(),
+                                X=x, y=y, cv=5, scoring='accuracy').mean()
+
+output += f"\nСредняя точность после сортировки признаков функцией SelectKBest через f_classif: {mean_accuracy}"
+
+
+print(output)
