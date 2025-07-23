@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 
@@ -27,5 +28,19 @@ for n in (2, 5, 10, 20):
     new_pixels = model.cluster_centers_[labels]
 
     new_image = new_pixels.reshape(image.shape).astype('uint8')
-
     draw_picture(image_func=new_image, title=f'Kmeans{n}', bgr=False)
+
+model = DBSCAN(eps=10, min_samples=10)
+
+labels = model.fit_predict(X=pixels)
+clusters_id = np.unique(labels[labels != -1])
+
+new_pixels = pixels.copy()
+
+for cluster_id in clusters_id:
+    pixel_cluster = pixels[labels == cluster_id]
+    new_pixels[labels == cluster_id] = np.mean(pixel_cluster, axis=0)
+new_pixels[labels == -1] = [0, 0, 0]
+
+new_image = new_pixels.reshape(image.shape).astype('uint8')
+draw_picture(image_func=new_image, title='DBSCAN', bgr=False)
