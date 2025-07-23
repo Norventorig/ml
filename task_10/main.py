@@ -17,7 +17,7 @@ def draw_picture(image_func, title, bgr=True):
 
 
 image = cv2.imread('image.jpg')
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Конвертация в RGB
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 pixels = image.reshape(-1, 3)
 
 
@@ -30,7 +30,7 @@ for n in (2, 5, 10, 20):
     new_image = new_pixels.reshape(image.shape).astype('uint8')
     draw_picture(image_func=new_image, title=f'Kmeans{n}', bgr=False)
 
-model = DBSCAN(eps=10, min_samples=10)
+model = DBSCAN(eps=3, min_samples=4)
 
 labels = model.fit_predict(X=pixels)
 clusters_id = np.unique(labels[labels != -1])
