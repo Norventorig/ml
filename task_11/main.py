@@ -13,10 +13,6 @@ y = dataset['HeartDisease']
 train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2, random_state=1)
 
 
-cv_results = cross_validate(estimator=LogisticRegression(), y=y, X=X, cv=10,
-                            scoring=['accuracy', 'recall', 'precision', 'f1'])
-
-
 params = {'C': [0.1, 0.5, 1, 10, 100],
           'solver': ['liblinear', 'lbfgs', 'saga', 'newton-cg'],
           'penalty': ['l2', None],
@@ -39,10 +35,17 @@ randomized_search.fit(X=train_x, y=train_y)
 rs_params = randomized_search.best_params_
 rs_score = randomized_search.best_score_
 
-print(f'{gs_params}\n{rs_params}\n\n')
-print(f'{gs_score}\n{rs_score}')
+print(f'Гиперпараметры от GridSearch: {gs_params}\nГиперпараметры от RandomizedSearch: {rs_params}\n')
+print(f'Метрика accuracy от GridSearch: {gs_score}\nМетрика accuracy от RandomizedSearch: {rs_score}\n\n')
 
+
+cv_results = cross_validate(estimator=LogisticRegression(), y=y, X=X, cv=10,
+                            scoring=['accuracy', 'recall', 'precision', 'f1'])
 gs_cv_results = cross_validate(estimator=LogisticRegression(**gs_params), y=y, X=X, cv=10,
                                scoring=['accuracy', 'recall', 'precision', 'f1'])
 rs_cv_results = cross_validate(estimator=LogisticRegression(**rs_params), y=y, X=X, cv=10,
                                scoring=['accuracy', 'recall', 'precision', 'f1'])
+
+print(f'Результаты кросс валидации без гиперпараметров: {cv_results}\n')
+print(f'Результаты кросс валидации с гиперпараметрами от GridSearch: {gs_cv_results}\n')
+print(f'Результаты кросс валидации с гиперпараметрами от RandomizedSearch: {rs_cv_results}\n')
