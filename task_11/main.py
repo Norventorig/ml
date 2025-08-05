@@ -42,7 +42,7 @@ rs_score = randomized_search.best_score_
 print(f'{gs_params}\n{rs_params}\n\n')
 print(f'{gs_score}\n{rs_score}')
 
-gs_cv_results = cross_validate(estimator=LogisticRegression(gs_params), y=y, X=X, cv=10,
+gs_cv_results = cross_validate(estimator=LogisticRegression(**gs_params), y=y, X=X, cv=10,
                                scoring=['accuracy', 'recall', 'precision', 'f1'])
-rs_cv_results = cross_validate(estimator=LogisticRegression(rs_params), y=y, X=X, cv=10,
+rs_cv_results = cross_validate(estimator=LogisticRegression(**rs_params), y=y, X=X, cv=10,
                                scoring=['accuracy', 'recall', 'precision', 'f1'])
