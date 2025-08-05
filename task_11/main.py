@@ -13,5 +13,5 @@ y = dataset['HeartDisease']
 train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2, random_state=1)
 
 
-res = cross_validate(estimator=LogisticRegression(), y=y, X=X, cv=10, scoring=['accuracy', 'recall', 'precision', 'f1'])
+cv_results = cross_validate(estimator=LogisticRegression(), y=y, X=X, cv=10, scoring=['accuracy', 'recall', 'precision', 'f1'])
 
