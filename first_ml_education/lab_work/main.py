@@ -9,21 +9,20 @@ from sklearn.metrics import classification_report
 
 dataset = fetch_ucirepo(id=40).data.features
 
+data_graph = pd.Series({'Catholic': dataset['religion'][dataset['religion'] == 0].count(),
+                        'Other Christian': dataset['religion'][dataset['religion'] == 1].count(),
+                        'Muslim': dataset['religion'][dataset['religion'] == 2].count(),
+                        'Buddhist': dataset['religion'][dataset['religion'] == 3].count(),
+                        'Hindu': dataset['religion'][dataset['religion'] == 4].count(),
+                        'Ethnic': dataset['religion'][dataset['religion'] == 5].count(),
+                        'Marxist': dataset['religion'][dataset['religion'] == 6].count(),
+                        'Others': dataset['religion'][dataset['religion'] == 7].count()})
 
-data_pie = pd.Series({'Catholic': dataset['religion'][dataset['religion'] == 0].count(),
-                      'Other Christian': dataset['religion'][dataset['religion'] == 1].count(),
-                      'Muslim': dataset['religion'][dataset['religion'] == 2].count(),
-                      'Buddhist': dataset['religion'][dataset['religion'] == 3].count(),
-                      'Hindu': dataset['religion'][dataset['religion'] == 4].count(),
-                      'Ethnic': dataset['religion'][dataset['religion'] == 5].count(),
-                      'Marxist': dataset['religion'][dataset['religion'] == 6].count(),
-                      'Others': dataset['religion'][dataset['religion'] == 7].count()})
-
-plt.pie(x=data_pie, labels=data_pie.index)
+plt.pie(x=data_graph, labels=data_graph.index)
 plt.title("distribution of religions")
 plt.show()
 
-data_heatmap = pd.crosstab(
+data_graph = pd.crosstab(
     dataset['religion'].replace({
         0: 'Catholic',
         1: 'Other Christian',
@@ -41,7 +40,7 @@ data_heatmap = pd.crosstab(
         4: 'NW'
     }))
 
-sns.heatmap(data_heatmap, annot=True)
+sns.heatmap(data=data_graph, annot=True)
 plt.title('Распределение религий по зонам')
 plt.xlabel('Религия')
 plt.ylabel('Географическая зона')
@@ -62,3 +61,11 @@ model.fit(train_x, train_y)
 prediction = model.predict(X=test_x)
 
 print(classification_report(y_pred=prediction, y_true=test_y))
+
+
+data_graph = dataset.corr()['religion'].abs().sort_values(ascending=False).head(6).index
+data_graph = dataset[data_graph].corr()
+
+sns.heatmap(data=data_graph, annot=True)
+plt.title('Correlation matrix')
+plt.show()
