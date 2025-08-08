@@ -69,3 +69,9 @@ data_graph = dataset[data_graph].corr()
 sns.heatmap(data=data_graph, annot=True)
 plt.title('Correlation matrix')
 plt.show()
+
+
+for i_param in X.columns:
+    sns.boxplot(data=X[i_param], orient='h')
+    plt.title(f'{i_param} boxplot')
+    plt.show()
