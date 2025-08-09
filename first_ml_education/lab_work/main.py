@@ -1,3 +1,5 @@
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -73,10 +75,10 @@ plt.title('Correlation matrix')
 plt.show()
 
 
-for i_param in X.columns:
-    sns.boxplot(data=X[i_param], orient='h')
-    plt.title(f'{i_param} boxplot')
-    plt.show()
+# for i_param in X.columns:
+#     sns.boxplot(data=X[i_param], orient='h')
+#     plt.title(f'{i_param} boxplot')
+#     plt.show()
 
 
 standart_scaler = StandardScaler()
@@ -87,3 +89,15 @@ model.fit(train_x, train_y)
 prediction = model.predict(X=test_x)
 
 print(f'Классификация после нормализации area: \n{classification_report(y_pred=prediction, y_true=test_y)}')
+
+
+ros = RandomOverSampler(sampling_strategy={i: 35 if y.value_counts()[i] < 35 else y.value_counts()[i]
+                                           for i in y.value_counts().index.to_list()})
+X, y = ros.fit_resample(X=X, y=y)
+
+rus = RandomUnderSampler(sampling_strategy={i: 35 if y.value_counts()[i] > 35 else y.value_counts()[i]
+                                            for i in y.value_counts().index.to_list()})
+X, y = rus.fit_resample(X=X, y=y)
+
+
+
