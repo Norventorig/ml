@@ -1,5 +1,6 @@
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -8,6 +9,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report
+
+
+def make_classification_report(x_train, x_test, y_train, y_test):
+    model.fit(x_train, y_train)
+    prediction = model.predict(X=x_test)
+
+    return classification_report(y_pred=prediction, y_true=y_test)
 
 
 dataset = fetch_ucirepo(id=40).data.features
@@ -61,10 +69,8 @@ train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
 
 model = RandomForestClassifier()
 
-model.fit(train_x, train_y)
-prediction = model.predict(X=test_x)
-
-print(f'Классификация при оригинальных данных: \n{classification_report(y_pred=prediction, y_true=test_y)}')
+print(f'Классификация при оригинальных данных: '
+      f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y)}')
 
 
 data_graph = dataset.corr()['religion'].abs().sort_values(ascending=False).head(6).index
@@ -84,11 +90,8 @@ plt.show()
 standart_scaler = StandardScaler()
 X['area'] = standart_scaler.fit_transform(X[['area']])
 
-
-model.fit(train_x, train_y)
-prediction = model.predict(X=test_x)
-
-print(f'Классификация после нормализации area: \n{classification_report(y_pred=prediction, y_true=test_y)}')
+print(f'Классификация после нормализации area: '
+      f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y)}')
 
 
 ros = RandomOverSampler(sampling_strategy={i: 35 if y.value_counts()[i] < 35 else y.value_counts()[i]
@@ -99,8 +102,11 @@ rus = RandomUnderSampler(sampling_strategy={i: 35 if y.value_counts()[i] > 35 el
                                             for i in y.value_counts().index.to_list()})
 X, y = rus.fit_resample(X=X, y=y)
 
+print(f'Классификация после oversampling/undersampling: '
+      f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y)}')
 
-model.fit(train_x, train_y)
-prediction = model.predict(X=test_x)
 
-print(f'Классификация после oversampling/undersampling: \n{classification_report(y_pred=prediction, y_true=test_y)}')
+X = pd.DataFrame(data=PCA(n_components=5).fit_transform(X))
+
+print(f'Классификация после уменьшения размерности пространства признаков: '
+      f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y)}')
