@@ -1,5 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -57,10 +58,11 @@ train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
 
 
 model = RandomForestClassifier()
+
 model.fit(train_x, train_y)
 prediction = model.predict(X=test_x)
 
-print(classification_report(y_pred=prediction, y_true=test_y))
+print(f'Классификация при оригинальных данных: \n{classification_report(y_pred=prediction, y_true=test_y)}')
 
 
 data_graph = dataset.corr()['religion'].abs().sort_values(ascending=False).head(6).index
@@ -75,3 +77,13 @@ for i_param in X.columns:
     sns.boxplot(data=X[i_param], orient='h')
     plt.title(f'{i_param} boxplot')
     plt.show()
+
+
+standart_scaler = StandardScaler()
+X['area'] = standart_scaler.fit_transform(X[['area']])
+
+
+model.fit(train_x, train_y)
+prediction = model.predict(X=test_x)
+
+print(f'Классификация после нормализации area: \n{classification_report(y_pred=prediction, y_true=test_y)}')
