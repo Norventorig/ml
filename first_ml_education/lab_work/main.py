@@ -100,4 +100,7 @@ rus = RandomUnderSampler(sampling_strategy={i: 35 if y.value_counts()[i] > 35 el
 X, y = rus.fit_resample(X=X, y=y)
 
 
+model.fit(train_x, train_y)
+prediction = model.predict(X=test_x)
 
+print(f'Классификация после oversampling/undersampling: \n{classification_report(y_pred=prediction, y_true=test_y)}')
