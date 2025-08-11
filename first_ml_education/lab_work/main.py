@@ -91,6 +91,8 @@ print(f'Классификация при оригинальных данных:
 standart_scaler = StandardScaler()
 X['area'] = standart_scaler.fit_transform(X[['area']])
 
+train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
+
 print(f'Классификация после нормализации area: '
       f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y, model_in=model)}')
 
@@ -103,11 +105,15 @@ rus = RandomUnderSampler(sampling_strategy={i: 35 if y.value_counts()[i] > 35 el
                                             for i in y.value_counts().index.to_list()})
 X, y = rus.fit_resample(X=X, y=y)
 
+train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
+
 print(f'Классификация после oversampling/undersampling: '
       f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y, model_in=model)}')
 
 
 X = pd.DataFrame(data=PCA(n_components=5).fit_transform(X))
+
+train_x, test_x, train_y, test_y = train_test_split(X, y, test_size=0.2)
 
 print(f'Классификация после уменьшения размерности пространства признаков: '
       f'\n{make_classification_report(x_train=train_x, y_train=train_y, x_test=test_x, y_test=test_y, model_in=model)}')
