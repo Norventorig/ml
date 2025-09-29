@@ -21,7 +21,16 @@ user_ratings = user_ratings[user_ratings['movieId'].isin(user_genres['movieId'].
 
 print(f"Максимальное число жанров на фильме: {user_genres['genres'].apply(lambda x: len(x.split('|'))).max()}")
 
-# counts = user_tags['movieId'].value_counts()
-# user_tags = user_tags[user_tags['movieId'].isin(counts[counts <= 3].index)]
+movies = user_tags['movieId'].unique()
+tags = [' | '.join(user_tags[user_tags['movieId'] == i_id]['tag'].
+                   apply(lambda x: str(x).lower()).unique())
+        for i_id in movies]
+ratings = [user_ratings[user_ratings['movieId'] == i_id]['rating'].values[0] for i_id in movies]
+genres = [user_genres[user_genres['movieId'] == i_id]['genres'].values[0] for i_id in movies]
 
-# | Это не то ты должен сделать вектор по тэгам следовательно сократить числ самих уникальных тегов
+data = {'movieId': movies, 'genres': genres, 'tags': tags, 'rating': ratings}
+df = p.DataFrame(data=data)
+
+print(f"Число уникальных тэгов: {len(set(df['tags'].str.cat(sep=' | ').split(' | ')))}")
+
+tf_idf = TfidfVectorizer(min_df=5, max_df=0.8)
