@@ -1,9 +1,8 @@
 import pandas as p
-import numpy as n
 
 from sklearn.linear_model import LinearRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+from sklearn.model_selection import GridSearchCV
 
 links = p.read_csv('links.csv')
 movies = p.read_csv('movies.csv')
@@ -32,6 +31,8 @@ data = {'movieId': movies, 'genres': genres, 'tags': tags, 'rating': ratings}
 df = p.DataFrame(data=data)
 
 print(f"Число уникальных тэгов: {len(set(df['tags'].str.cat(sep=' | ').split(' | ')))}")
+
+# сделай подбор гиперпарамеров для td_idf
 
 tags_tf_idf = TfidfVectorizer(min_df=5, max_df=0.8, tokenizer=lambda x: x.split(' | '))
 genres_tf_idf = TfidfVectorizer(min_df=5, max_df=0.9, tokenizer=lambda x: x.split('|'))
