@@ -33,4 +33,13 @@ df = p.DataFrame(data=data)
 
 print(f"Число уникальных тэгов: {len(set(df['tags'].str.cat(sep=' | ').split(' | ')))}")
 
-tf_idf = TfidfVectorizer(min_df=5, max_df=0.8)
+tags_tf_idf = TfidfVectorizer(min_df=5, max_df=0.8, tokenizer=lambda x: x.split(' | '))
+genres_tf_idf = TfidfVectorizer(min_df=5, max_df=0.9, tokenizer=lambda x: x.split('|'))
+
+tags = tags_tf_idf.fit_transform(df['tags'])
+genres = genres_tf_idf.fit_transform(df['genres'])
+
+tags = p.DataFrame(data=tags.toarray(), columns=tags_tf_idf.get_feature_names_out(), index=df.index)
+genres = p.DataFrame(data=genres.toarray(), columns=genres_tf_idf.get_feature_names_out(), index=df.index)
+
+df = p.concat([df['rating'], tags, genres], axis=1)
