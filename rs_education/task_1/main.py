@@ -12,6 +12,7 @@ ratings = p.read_csv('ratings.csv')
 tags = p.read_csv('tags.csv')
 
 user_id = ratings['userId'].value_counts().index[2]
+
 user_ratings = ratings[ratings['userId'] == user_id][['rating', 'movieId']]
 
 user_tags = tags[tags['movieId'].isin(user_ratings['movieId'].to_list())][['tag', 'movieId']]
