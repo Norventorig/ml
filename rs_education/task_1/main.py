@@ -2,14 +2,14 @@ import pandas as p
 
 from sklearn.linear_model import LinearRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
 
 links = p.read_csv('links.csv')
 movies = p.read_csv('movies.csv')
 ratings = p.read_csv('ratings.csv')
 tags = p.read_csv('tags.csv')
-
-model = LinearRegression()
 
 user_id = ratings['userId'].value_counts().index[2]
 user_ratings = ratings[ratings['userId'] == user_id][['rating', 'movieId']]
@@ -32,8 +32,6 @@ df = p.DataFrame(data=data)
 
 print(f"Число уникальных тэгов: {len(set(df['tags'].str.cat(sep=' | ').split(' | ')))}")
 
-# сделай подбор гиперпарамеров для td_idf
-
 tags_tf_idf = TfidfVectorizer(min_df=5, max_df=0.8, tokenizer=lambda x: x.split(' | '))
 genres_tf_idf = TfidfVectorizer(min_df=5, max_df=0.9, tokenizer=lambda x: x.split('|'))
 
@@ -44,3 +42,16 @@ tags = p.DataFrame(data=tags.toarray(), columns=tags_tf_idf.get_feature_names_ou
 genres = p.DataFrame(data=genres.toarray(), columns=genres_tf_idf.get_feature_names_out(), index=df.index)
 
 df = p.concat([df['rating'], tags, genres], axis=1)
+
+
+model = LinearRegression()
+
+x = df.drop(axis=1, columns=['rating'])
+y = df['rating']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=23)
+
+model.fit(X=x_train, y=y_train)
+y_pred = model.predict(X=x_test)
+
+print(mean_squared_error(y_true=y_test, y_pred=y_pred))
