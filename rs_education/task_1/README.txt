@@ -1,1 +1,1 @@
-Воспользовавшись датасетом MovieLens и моделью линейной регрессии предсказать оценку данную пользователем
+Use the MovieLens dataset and a linear regression model to predict the rating given by a user
