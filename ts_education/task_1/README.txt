@@ -1,0 +1,1 @@
+Analyze given time series and turn them into stationary time series
