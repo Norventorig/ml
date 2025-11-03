@@ -8,3 +8,4 @@ scikit-image
 scipy
 ucimlrepo
 imblearn
+statsmodels
