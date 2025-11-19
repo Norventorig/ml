@@ -139,44 +139,51 @@ def triple_exponential_smoothing(series: pd.Series,
     return pd.Series(result)
 
 
-pipeline = {'ma': (MA_Handler.predict, [{'k': i_k} for i_k in range(1, 16)], (5, 3)),
+pipeline = {
+    'non stationary time series': {
+        'ma': (MA_Handler.predict, [{'k': i_k} for i_k in range(1, 16)], non_stationary_series,),
+        'ema': (EMA_Handler.predict, [{'alpha': i_k / 10} for i_k in range(1, 10)], non_stationary_series),
+        'dema': (DEMA_Handler.smooth_predict, [{'alpha': alpha / 10, 'beta': beta / 10}
+                                               for alpha in range(1, 10)
+                                               for beta in range(1, 10)], non_stationary_series,),
+        'tema': (triple_exponential_smoothing, [{'alpha': alpha / 10, 'beta': beta / 10, 'gamma': gamma / 10}
+                                                for alpha in range(1, 10)
+                                                for beta in range(1, 10)
+                                                for gamma in range(1, 10)], non_stationary_series,)},
 
-            'ema': (EMA_Handler.predict, [{'alpha': i_k / 10} for i_k in range(1, 10)], (2, 5)),
+    'stationary time series': {
+        'ma': (MA_Handler.predict, [{'k': i_k} for i_k in range(1, 16)], stationary_series),
+        'ema': (EMA_Handler.predict, [{'alpha': i_k / 10} for i_k in range(1, 10)], stationary_series),
+        'dema': (DEMA_Handler.smooth_predict, [{'alpha': alpha / 10, 'beta': beta / 10}
+                                               for alpha in range(1, 10)
+                                               for beta in range(1, 10)], stationary_series),
+        'tema': (triple_exponential_smoothing, [{'alpha': alpha / 10, 'beta': beta / 10, 'gamma': gamma / 10}
+                                                for alpha in range(1, 10)
+                                                for beta in range(1, 10)
+                                                for gamma in range(1, 10)], stationary_series)}}
 
-            'dema': (DEMA_Handler.smooth_predict, [{'alpha': alpha / 10, 'beta': beta / 10}
-                                                   for alpha in range(1, 10)
-                                                   for beta in range(1, 10)],
-                     (5, 20)),
+research_data = {'non stationary time series': {'ma': [], 'ema': [], 'dema': [], 'tema': []},
+                 'stationary time series': {'ma': [], 'ema': [], 'dema': [], 'tema': []}}
 
-            'tema': (triple_exponential_smoothing, [{'alpha': alpha / 10, 'beta': beta / 10, 'gamma': gamma / 10}
-                                                    for alpha in range(1, 10)
-                                                    for beta in range(1, 10)
-                                                    for gamma in range(1, 10)],
-                     (5, 200))}
+for ts in pipeline.keys():
+    for method in pipeline[ts].keys():
+        data = pipeline[ts][method]
 
-research_data = {'ma': [], 'ema': [], 'dema': [], 'tema': []}
-for method in pipeline.keys():
-    data = pipeline[method]
+        func = data[0]
+        params = data[1]
+        curr_ts = data[2]
 
-    func = data[0]
-    params = data[1]
+        for i_param in params:
+            predictions = func(curr_ts[:-10], **i_param)[-10:]
+            true_values = curr_ts[-10:]
 
-    for i_param in params:
-        predictions = func(non_stationary_series[:-10], **i_param)[-10:]
-        true_values = non_stationary_series[-10:]
+            metrics = root_mean_squared_error(y_true=true_values, y_pred=predictions)
 
-        metrics = root_mean_squared_error(y_true=true_values, y_pred=predictions)
+            research_data[ts][method].append((metrics, i_param))
 
-        research_data[method].append((metrics, i_param))
-
-    research_data[method] = min(research_data[method])
+        research_data[ts][method] = min(research_data[ts][method])
 
 print(research_data)
-
-# 'ma': (243.28484641689641, {'k': 13}),
-# 'ema': (286.20888384233893, {'alpha': 0.1})
-# 'dema': (89.44320451293655, {'alpha': 0.3, 'beta': 0.5})
-# 'tema': (66.66945847083198, {'alpha': 0.2, 'beta': 0.5, 'gamma': 0.6})}
 
 plt.figure(figsize=(24, 24))
 
@@ -193,5 +200,24 @@ plt.plot(DEMA_Handler.smooth_predict(series=non_stationary_series, alpha=0.3, be
 
 plt.subplot(2, 2, 4)
 plt.plot(triple_exponential_smoothing(series=non_stationary_series, alpha=0.2, beta=0.5, gamma=0.6))
+
+plt.show()
+
+
+plt.figure(figsize=(24, 24))
+
+plt.subplot(2, 2, 1)
+plt.plot(stationary_series)
+plt.plot(MA_Handler.predict(series=stationary_series, k=14))
+
+plt.subplot(2, 2, 2)
+plt.plot(stationary_series)
+plt.plot(EMA_Handler.predict(series=stationary_series, alpha=0.1))
+
+plt.subplot(2, 2, 3)
+plt.plot(DEMA_Handler.smooth_predict(series=stationary_series, alpha=0.3, beta=0.3, n_iter=10))
+
+plt.subplot(2, 2, 4)
+plt.plot(triple_exponential_smoothing(series=stationary_series, alpha=0.2, beta=0.3, gamma=0.5))
 
 plt.show()
