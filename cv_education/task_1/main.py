@@ -105,3 +105,5 @@ y_pred = model.predict(test)
 
 data = {'ImageId': [i for i in range(1, len(y_pred)+1)], 'Label': [int(i) for i in y_pred]}
 pd.DataFrame(data=y_pred).to_csv('results.csv', index=False)
+
+# Итоговая метрика: 0.928
