@@ -49,3 +49,45 @@ def load_images(path, img_size, label_name='cat'):
 
     return np.array(x), np.array(y)
 
+
+x_train, y_train = load_images(
+    path=r"C:\Users\123\Downloads\train",
+    img_size=(224, 224)
+)
+
+
+base_model = vgg16.VGG16(
+    weights='imagenet',
+    include_top=False,
+    input_shape=(224, 224, 3)
+)
+
+for layer in base_model.layers:
+    layer.trainable = False
+
+x = base_model.get_layer('block5_conv3').output
+x = GlobalAveragePooling2D()(x)
+x = Dense(1024, activation='relu')(x)
+x = Dropout(0.5)(x)
+outputs = Dense(1, activation='sigmoid')(x)
+
+model = Model(inputs=base_model.input, outputs=outputs)
+
+model.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
+
+model.fit(
+    x_train,
+    y_train,
+    validation_split=0.2,
+    epochs=30,
+    batch_size=32,
+    callbacks=[
+        EarlyStopping(patience=5, monitor='val_loss', restore_best_weights=True),
+        ModelCheckpoint('model.keras', save_best_only=True)
+    ]
+)
+
