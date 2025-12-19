@@ -26,3 +26,26 @@ TRAIN_DATAGEN = A.Compose([
     )
 ])
 
+
+def load_images(path, img_size, label_name='cat'):
+    x, y = [], []
+    directory = Path(path)
+
+    for img_path in directory.iterdir():
+        label = int(label_name in img_path.name)
+
+        img = cv2.imread(str(img_path))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, img_size)
+
+        img = vgg16.preprocess_input(img)
+
+        x.append(img)
+        y.append(label)
+
+        aug_img = TRAIN_DATAGEN(image=img)['image']
+        x.append(aug_img)
+        y.append(label)
+
+    return np.array(x), np.array(y)
+
