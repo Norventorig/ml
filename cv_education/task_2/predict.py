@@ -20,7 +20,11 @@ model = load_model("model.keras", compile=False)
 labels = ('cat', 'dog')
 data = {'id': [], 'label': []}
 
-for i_path in Path(rf'C:\Users\123\Downloads\datasets\test').iterdir():
+for n_iter, i_path in enumerate(Path(rf'C:\Users\123\Downloads\datasets\test').iterdir()):
+    if n_iter % 500 == 0:
+        pd.DataFrame(data=data).to_csv('result.csv', index=False)
+        print(n_iter)
+
     value = prepare(path=i_path)
 
     value_id = str(i_path.name)[4:-4]
