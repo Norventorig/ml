@@ -28,7 +28,7 @@ TRAIN_DATAGEN = A.Compose([
 ])
 
 
-def load_train_images(path, img_size: tuple, labels: tuple):
+def load_images(path, img_size: tuple, labels: tuple, aug_percentage: float = 0.0):
     x, y = [], []
     directory = Path(path)
 
@@ -40,15 +40,12 @@ def load_train_images(path, img_size: tuple, labels: tuple):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = cv2.resize(img, img_size)
 
-            aug_img = TRAIN_DATAGEN(image=img)['image']
+            if random.random() < aug_percentage:
+                img = TRAIN_DATAGEN(image=img)['image']
 
             img = vgg16.preprocess_input(img)
-            aug_img = vgg16.preprocess_input(aug_img)
 
             x.append(img)
-            y.append(label)
-
-            x.append(aug_img)
             y.append(label)
 
     combined = list(zip(x, y))
@@ -58,7 +55,7 @@ def load_train_images(path, img_size: tuple, labels: tuple):
     return np.array(x), np.array(y)
 
 
-x_train, y_train = load_train_images(
+x_train, y_train = load_images(
     path=r"C:\Users\123\Downloads\datasets\train",
     img_size=(224, 224),
     labels=("cat", "dog"))
