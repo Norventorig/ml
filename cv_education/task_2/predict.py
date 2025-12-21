@@ -19,7 +19,6 @@ def prepare(path):
 
 
 model = load_model("model.keras", compile=False)
-labels = ('cat', 'dog')
 data = {'id': [], 'label': []}
 
 paths = sorted(
@@ -34,7 +33,7 @@ for n_iter, i_path in enumerate(paths):
     value = prepare(path=i_path)
 
     value_id = str(i_path.name)[:-4]
-    predicted_label= labels[int(model.predict(value)[0][0])]
+    predicted_label= int(model.predict(value)[0][0])
 
     data['label'].append(predicted_label)
     data['id'].append(value_id)
