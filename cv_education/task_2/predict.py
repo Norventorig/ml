@@ -5,6 +5,8 @@ import numpy as np
 from tensorflow.keras.applications.vgg16 import preprocess_input
 import pandas as pd
 
+test_dataset_path = r"C:\Users\123\Downloads\datasets\test"
+
 
 def prepare(path):
     img = cv2.imread(str(path))
@@ -21,7 +23,7 @@ labels = ('cat', 'dog')
 data = {'id': [], 'label': []}
 
 paths = sorted(
-    Path(r"C:\Users\123\Downloads\datasets\test").iterdir(),
+    Path(test_dataset_path).iterdir(),
     key=lambda x: int(x.stem)
 )
 for n_iter, i_path in enumerate(paths):
