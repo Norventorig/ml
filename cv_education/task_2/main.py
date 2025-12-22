@@ -116,8 +116,15 @@ dog_labels = [1 for _ in dog_paths]
 
 validation_split = 0.2
 
-all_paths = tuple(cat_paths + dog_paths)
-all_labels = tuple(cat_labels + dog_labels)
+all_paths = cat_paths + dog_paths
+all_labels = cat_labels + dog_labels
+
+combined = list(zip(all_paths, all_labels))
+np.random.shuffle(combined)
+all_paths, all_labels = zip(*combined)
+
+all_paths = tuple(all_paths)
+all_labels = tuple(all_labels)
 
 train_paths = all_paths[int(validation_split * len(all_paths)):]
 train_labels = all_labels[int(validation_split * len(all_labels)):]
@@ -156,6 +163,7 @@ model.compile(
     metrics=['accuracy']
 )
 
+print('Начало обучения')
 model.fit(
     train,
     validation_data=validation,
