@@ -2,8 +2,9 @@ import cv2
 from pathlib import Path
 import albumentations as A
 import numpy as np
-import random
 
+from tensorflow.keras.utils import Sequence
+from tensorflow.keras.applications.vgg16 import preprocess_input
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling2D
 from tensorflow.keras import Model
@@ -28,38 +29,109 @@ TRAIN_DATAGEN = A.Compose([
 ])
 
 
-def load_images(path, img_size: tuple, labels: tuple, aug_percentage: float = 0.0):
-    x, y = [], []
-    directory = Path(path)
+class TrainGenerator(Sequence):
+    def __init__(self, paths: tuple, batch_size: int, img_size: tuple, labels: tuple, aug_percentage: float = 0.0):
+        self.paths = paths
+        self.batch_size = batch_size
+        self.img_size = img_size
+        self.indexes = np.arange(len(paths))
+        self.labels = labels
+        self.aug_percentage = aug_percentage
 
-    for subdir in directory.iterdir():
-        label = labels.index(subdir.name)
+        self.on_epoch_end()
 
-        for img_path in subdir.iterdir():
-            img = cv2.imread(str(img_path))
+    def __len__(self):
+        return len(self.paths) // self.batch_size
+
+    def on_epoch_end(self):
+        np.random.shuffle(self.indexes)
+
+    def __getitem__(self, item):
+        batch_x = np.zeros((self.batch_size, *self.img_size, 3), dtype=np.float32)
+        batch_y = np.zeros(self.batch_size, dtype=np.int32)
+
+        start = item * self.batch_size
+        stop = start + self.batch_size
+        for batch_index, i_index in enumerate(self.indexes[start:stop]):
+            i_path = self.paths[i_index]
+            i_label = self.labels[i_index]
+
+            img = cv2.imread(str(i_path))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, img_size)
+            img = cv2.resize(img, self.img_size)
 
-            if random.random() < aug_percentage:
+            if np.random.random() < self.aug_percentage:
                 img = TRAIN_DATAGEN(image=img)['image']
 
-            img = vgg16.preprocess_input(img)
+            img = preprocess_input(img)
 
-            x.append(img)
-            y.append(label)
+            batch_x[batch_index] = img
+            batch_y[batch_index] = i_label
 
-    combined = list(zip(x, y))
-    random.shuffle(combined)
-    x, y = zip(*combined)
-
-    return np.array(x), np.array(y)
+        return batch_x, batch_y
 
 
-x_train, y_train = load_images(
-    path=r"C:\Users\123\Downloads\datasets\train",
-    img_size=(224, 224),
-    labels=("cat", "dog"))
+class ValidationGenerator(Sequence):
+    def __init__(self, paths: tuple, batch_size: int, img_size: tuple, labels: tuple):
+        self.paths = paths
+        self.batch_size = batch_size
+        self.img_size = img_size
+        self.labels = labels
 
+    def __len__(self):
+        return len(self.paths) // self.batch_size
+
+    def __getitem__(self, item):
+        batch_x = np.zeros((self.batch_size, *self.img_size, 3), dtype=np.float32)
+        batch_y = np.zeros(self.batch_size, dtype=np.int32)
+
+        start = item * self.batch_size
+        stop = start + self.batch_size
+        for batch_index, i_index in enumerate(range(start, stop)):
+            i_path = self.paths[i_index]
+            i_label = self.labels[i_index]
+
+            img = cv2.imread(str(i_path))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, self.img_size)
+
+            img = preprocess_input(img)
+
+            batch_x[batch_index] = img
+            batch_y[batch_index] = i_label
+
+        return batch_x, batch_y
+
+
+train_dataset_path = Path(r"C:\Users\123\Downloads\datasets\train")
+
+cat_train_dataset_path = train_dataset_path / 'cat'
+dog_train_dataset_path = train_dataset_path / 'dog'
+
+cat_paths = sorted(cat_train_dataset_path.iterdir(), key=lambda x: int(x.stem[4:]))
+dog_paths = sorted(dog_train_dataset_path.iterdir(), key=lambda x: int(x.stem[4:]))
+
+cat_labels = [0 for _ in cat_paths]
+dog_labels = [1 for _ in dog_paths]
+
+validation_split = 0.2
+
+all_paths = tuple(cat_paths + dog_paths)
+all_labels = tuple(cat_labels + dog_labels)
+
+train_paths = all_paths[int(validation_split * len(all_paths)):]
+train_labels = all_labels[int(validation_split * len(all_labels)):]
+
+validation_paths = all_paths[:int(validation_split * len(all_paths))]
+validation_labels = all_labels[:int(validation_split * len(all_labels))]
+
+batch_size = 32
+img_size = (224, 224)
+
+train = TrainGenerator(paths=train_paths, batch_size=batch_size, img_size=img_size,
+                       labels=train_labels)
+validation = ValidationGenerator(paths=validation_paths, batch_size=batch_size, img_size=img_size,
+                                 labels=validation_labels)
 
 base_model = vgg16.VGG16(
     weights='imagenet',
@@ -85,9 +157,8 @@ model.compile(
 )
 
 model.fit(
-    x_train,
-    y_train,
-    validation_split=0.2,
+    train,
+    validation_data=validation,
     epochs=30,
     batch_size=32,
     callbacks=[
